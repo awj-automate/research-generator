@@ -1,11 +1,9 @@
 import { NextRequest } from "next/server";
-import { crawlSite, getLogoUrl } from "@/lib/pipeline/crawl";
+import { crawlSite } from "@/lib/pipeline/crawl";
 import { runRiskChecks } from "@/lib/pipeline/risk-checks";
 import { buildSlideQueries, buildSynthesisPrompt } from "@/lib/pipeline/prompts";
 import { runResearchQueries } from "@/lib/pipeline/research";
 import { runSynthesis } from "@/lib/pipeline/synthesis";
-import { generateDeck } from "@/lib/pipeline/deck";
-
 export const maxDuration = 300; // 5 min for Railway/Vercel Pro
 
 export async function POST(req: NextRequest) {
@@ -21,10 +19,15 @@ export async function POST(req: NextRequest) {
   const fcKey = process.env.FIRECRAWL_API_KEY;
   const pxKey = process.env.PERPLEXITY_API_KEY;
   const anKey = process.env.ANTHROPIC_API_KEY;
-  const gmKey = process.env.GAMMA_API_KEY;
 
-  if (!fcKey || !pxKey || !anKey || !gmKey) {
-    return new Response(JSON.stringify({ error: "API keys not configured" }), {
+  console.log("ENV CHECK:", {
+    FIRECRAWL: !!fcKey,
+    PERPLEXITY: !!pxKey,
+    ANTHROPIC: !!anKey,
+  });
+
+  if (!fcKey || !pxKey || !anKey) {
+    return new Response(JSON.stringify({ error: "API keys not configured", detail: { fc: !!fcKey, px: !!pxKey, an: !!anKey } }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
@@ -103,26 +106,9 @@ export async function POST(req: NextRequest) {
         }));
         send("slides", slides);
 
-        // Layer 4: Deck Generation
-        send("progress", { layer: 4, label: "Generating presentation...", status: "start" });
-        const logoUrl = getLogoUrl(domain, process.env.LOGO_DEV_KEY);
-        const { url: deckUrl, id: deckId } = await generateDeck(
-          slides,
-          synthesis.raw,
-          logoUrl,
-          gmKey,
-          (msg) => {
-            send("progress", { layer: 4, label: msg, status: "start" });
-          }
-        );
-        totalCost += 0.05;
-        send("progress", { layer: 4, label: deckUrl ? "Deck ready" : "Deck generation failed", status: "done" });
-
         // Final result
         const duration = (Date.now() - startTime) / 1000;
         send("result", {
-          deckUrl,
-          deckId,
           cost: Math.round(totalCost * 10000) / 10000,
           duration: Math.round(duration),
         });

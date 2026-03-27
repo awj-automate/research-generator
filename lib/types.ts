@@ -33,8 +33,6 @@ export interface SynthesisResult {
 export interface PipelineResult {
   slides: SlideContent[];
   synthesis: SynthesisResult;
-  deckUrl: string | null;
-  deckId: string | null;
   cost: number;
   duration: number;
 }

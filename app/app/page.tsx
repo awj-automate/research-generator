@@ -21,13 +21,18 @@ interface Synthesis {
   rationale: string;
 }
 
+interface SlideData {
+  id: string;
+  title: string;
+  content: string;
+}
+
 interface FinalResult {
-  deckUrl: string | null;
   cost: number;
   duration: number;
 }
 
-const LAYER_NAMES = ["Site Crawl", "Risk Checks", "Research", "Synthesis", "Deck Generation"];
+const LAYER_NAMES = ["Site Crawl", "Risk Checks", "Research", "Synthesis"];
 
 export default function AppPage() {
   const [companyName, setCompanyName] = useState("");
@@ -39,6 +44,7 @@ export default function AppPage() {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<ProgressItem[]>([]);
   const [synthesis, setSynthesis] = useState<Synthesis | null>(null);
+  const [slides, setSlides] = useState<SlideData[]>([]);
   const [result, setResult] = useState<FinalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +56,7 @@ export default function AppPage() {
     setRunning(true);
     setProgress([]);
     setSynthesis(null);
+    setSlides([]);
     setResult(null);
     setError(null);
 
@@ -98,6 +105,9 @@ export default function AppPage() {
                 case "synthesis":
                   setSynthesis(data);
                   break;
+                case "slides":
+                  setSlides(data);
+                  break;
                 case "result":
                   setResult(data);
                   break;
@@ -125,6 +135,60 @@ export default function AppPage() {
       : synthesis?.recommendation === "NO-GO"
       ? "bg-red-50 border-red-200 text-red-800"
       : "bg-amber-50 border-amber-200 text-amber-800";
+
+  function buildDocHtml(name: string, slideData: SlideData[], syn: Synthesis | null): string {
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>${name} - Vendor Research Report</title>
+<style>body{font-family:Arial,sans-serif;margin:40px;color:#222}h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}h2{font-size:18px;margin-top:28px;color:#444}h3{font-size:14px;margin-top:16px;color:#666}p,li{font-size:13px;line-height:1.6}.verdict{padding:12px;margin:16px 0;border:1px solid #ccc;background:#f9f9f9}.green{color:#166534}.red{color:#991b1b}</style></head><body>`;
+    html += `<h1>${name} — Vendor Research Report</h1>`;
+
+    if (syn) {
+      html += `<div class="verdict"><h2>Verdict: ${syn.recommendation} (${syn.overallScore})</h2>`;
+      html += `<p>${syn.rationale}</p>`;
+      html += `<p><strong>Category Scores:</strong> ${syn.categoryScores}</p>`;
+      html += `<h3 class="green">Green Flags</h3><ul>${syn.greenFlags.map((f) => `<li>${f}</li>`).join("")}</ul>`;
+      html += `<h3 class="red">Red Flags</h3><ul>${syn.redFlags.map((f) => `<li>${f}</li>`).join("")}</ul>`;
+      html += `<h3>Negotiation Points</h3><ul>${syn.negotiationPoints.map((p) => `<li>${p}</li>`).join("")}</ul>`;
+      html += `</div>`;
+    }
+
+    for (const slide of slideData) {
+      html += `<h2>${slide.title}</h2>`;
+      const paragraphs = slide.content.split(/\n\n+/).filter(Boolean);
+      for (const p of paragraphs) {
+        html += `<p>${p.replace(/\n/g, "<br>")}</p>`;
+      }
+    }
+
+    html += `</body></html>`;
+    return html;
+  }
+
+  function downloadDoc(name: string, slideData: SlideData[], syn: Synthesis | null) {
+    const html = buildDocHtml(name, slideData, syn);
+    const blob = new Blob([html], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.replace(/\s+/g, "_")}_Research_Report.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function openInGoogleDocs(name: string, slideData: SlideData[], syn: Synthesis | null) {
+    const html = buildDocHtml(name, slideData, syn);
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.replace(/\s+/g, "_")}_Research_Report.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    // Small delay then open Google Docs upload page
+    setTimeout(() => {
+      window.open("https://docs.google.com/document/u/0/?tgif=d", "_blank");
+    }, 500);
+  }
 
   return (
     <div className="min-h-screen">
@@ -291,6 +355,7 @@ export default function AppPage() {
                 onClick={() => {
                   setResult(null);
                   setSynthesis(null);
+                  setSlides([]);
                   setProgress([]);
                 }}
                 className="text-xs text-ink-800/40 hover:text-ink-800/60 font-mono transition-colors"
@@ -299,7 +364,7 @@ export default function AppPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-8">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="p-3 rounded-lg bg-white border border-beige-200 text-center">
                 <div className="text-lg font-display text-ink-900">{result.duration}s</div>
                 <div className="text-[10px] font-mono text-ink-800/40 uppercase">Duration</div>
@@ -308,21 +373,21 @@ export default function AppPage() {
                 <div className="text-lg font-display text-ink-900">${result.cost}</div>
                 <div className="text-[10px] font-mono text-ink-800/40 uppercase">API Cost</div>
               </div>
-              <div className="p-3 rounded-lg bg-white border border-beige-200 text-center">
-                {result.deckUrl ? (
-                  <a
-                    href={result.deckUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-lg font-display text-burnt-500 hover:text-burnt-600 underline underline-offset-2"
-                  >
-                    Open Deck
-                  </a>
-                ) : (
-                  <div className="text-lg font-display text-ink-800/30">No deck</div>
-                )}
-                <div className="text-[10px] font-mono text-ink-800/40 uppercase">Presentation</div>
-              </div>
+            </div>
+
+            <div className="flex gap-3 mb-8">
+              <button
+                onClick={() => downloadDoc(companyName, slides, synthesis)}
+                className="flex-1 px-4 py-3 rounded-lg bg-burnt-500 text-white font-medium hover:bg-burnt-600 transition-all text-sm"
+              >
+                Download .doc
+              </button>
+              <button
+                onClick={() => openInGoogleDocs(companyName, slides, synthesis)}
+                className="flex-1 px-4 py-3 rounded-lg bg-white border border-beige-200 text-ink-900 font-medium hover:bg-beige-50 transition-all text-sm"
+              >
+                Open in Google Docs
+              </button>
             </div>
 
             {synthesis && <SynthesisPanel synthesis={synthesis} recBg={recBg} />}
