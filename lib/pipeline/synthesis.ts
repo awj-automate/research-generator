@@ -1,9 +1,9 @@
-import type { SynthesisResult } from "../types";
+import type { PainPoints } from "../types";
 
 export async function runSynthesis(
   prompt: string,
   apiKey: string
-): Promise<{ result: SynthesisResult; cost: number }> {
+): Promise<{ result: PainPoints; cost: number }> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -13,7 +13,7 @@ export async function runSynthesis(
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-6",
-      max_tokens: 1200,
+      max_tokens: 800,
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -30,31 +30,10 @@ export async function runSynthesis(
   const cost =
     (usage.input_tokens || 0) * 3e-6 + (usage.output_tokens || 0) * 15e-6;
 
-  return { result: parseSynthesis(raw), cost };
-}
+  const points = raw
+    .split(/\n/)
+    .map((line: string) => line.replace(/^\d+\.\s*/, "").trim())
+    .filter((line: string) => line.length > 10);
 
-function parseSynthesis(raw: string): SynthesisResult {
-  const line = (prefix: string) => {
-    const match = raw.match(new RegExp(`${prefix}:?\\s*(.+)`, "i"));
-    return match?.[1]?.trim() || "";
-  };
-
-  const splitPipe = (prefix: string) =>
-    line(prefix)
-      .replace(/^\[/, "")
-      .replace(/\]$/, "")
-      .split("|")
-      .map((s) => s.replace(/^\[/, "").replace(/\]$/, "").trim())
-      .filter(Boolean);
-
-  return {
-    overallScore: line("OVERALL SCORE"),
-    categoryScores: line("CATEGORY SCORES"),
-    greenFlags: splitPipe("GREEN FLAGS"),
-    redFlags: splitPipe("RED FLAGS"),
-    negotiationPoints: splitPipe("NEGOTIATION POINTS"),
-    recommendation: line("RECOMMENDATION"),
-    rationale: line("RATIONALE"),
-    raw,
-  };
+  return { result: { points, raw }, cost };
 }

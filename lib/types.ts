@@ -1,9 +1,8 @@
 export interface ResearchInput {
   companyName: string;
   domain: string;
-  category: string;
-  urls?: string;
   context?: string;
+  sections: string[];
 }
 
 export interface ProgressEvent {
@@ -13,26 +12,20 @@ export interface ProgressEvent {
   detail?: string;
 }
 
-export interface SlideContent {
+export interface SectionContent {
   id: string;
   title: string;
   content: string;
 }
 
-export interface SynthesisResult {
-  overallScore: string;
-  categoryScores: string;
-  greenFlags: string[];
-  redFlags: string[];
-  negotiationPoints: string[];
-  recommendation: string;
-  rationale: string;
+export interface PainPoints {
+  points: string[];
   raw: string;
 }
 
 export interface PipelineResult {
-  slides: SlideContent[];
-  synthesis: SynthesisResult;
+  sections: SectionContent[];
+  painPoints: PainPoints | null;
   cost: number;
   duration: number;
 }

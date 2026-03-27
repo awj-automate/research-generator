@@ -1,15 +1,4 @@
-import type { RiskCheckResult } from "./risk-checks";
-
-interface PromptVars {
-  name: string;
-  domain: string;
-  category: string;
-  siteContext: string;
-  riskContext: string;
-  userContext: string;
-}
-
-export interface SlideQuery {
+export interface SectionQuery {
   id: string;
   title: string;
   model: "sonar" | "sonar-pro";
@@ -17,136 +6,87 @@ export interface SlideQuery {
   prompt: string;
 }
 
-function riskSummary(risk: RiskCheckResult): string {
-  const breachLine =
-    risk.breaches.length > 0
-      ? `Known breaches: ${risk.breaches.map((b) => `${b.name} (${b.breachDate})`).join(", ")}`
-      : "No known breaches on HIBP";
-  const hnLine = `Hacker News: ${risk.hnMentions} mentions. Top stories: ${risk.hnTopStories.slice(0, 3).join("; ") || "none"}`;
-  return `${breachLine}\n${hnLine}`;
-}
+const STYLE_RULES = `Be brief and crisp. Never use em dashes. Do not say "based on the available search results" or similar qualifiers, just state the facts directly. If information is completely unavailable, respond with exactly: "Unavailable for this search". If only partial information is found, start with "Partially available info found." then write what was found.`;
 
-export function buildSlideQueries(
-  vars: { name: string; domain: string; category: string; userContext: string },
+export function buildSectionQueries(
+  vars: { name: string; domain: string; userContext: string },
   siteContent: Record<string, string>,
-  riskChecks: RiskCheckResult
-): SlideQuery[] {
+  enabledSections: string[]
+): SectionQuery[] {
   const site = Object.values(siteContent).join("\n\n").slice(0, 6000);
-  const risk = riskSummary(riskChecks);
-  const v: PromptVars = { ...vars, siteContext: site, riskContext: risk };
 
-  return [
+  const allQueries: SectionQuery[] = [
     {
-      id: "s01",
-      title: "Company Overview",
+      id: "description",
+      title: "Company Description",
       model: "sonar",
-      maxTokens: 340,
-      prompt: `What does ${v.name} (${v.domain}) do? Founded when, how many employees, HQ location, core products/services, notable clients. Market category: ${v.category}. Be specific with numbers. ${v.userContext}`,
+      maxTokens: 200,
+      prompt: `What does ${vars.name} (${vars.domain}) do? Explain in 1-2 concise sentences. Include what they sell or offer and who their target customer is. ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "s02",
-      title: "Financial Health",
+      id: "financials",
+      title: "Financials",
       model: "sonar-pro",
       maxTokens: 400,
-      prompt: `${v.name} (${v.domain}) financial health 2022-2025: revenue estimates, funding rounds with investor names, valuation, profitability signals, any financial red flags. ${v.userContext}`,
+      prompt: `${vars.name} (${vars.domain}) financial overview 2022-2025: revenue estimates, funding rounds with investor names, valuation, profitability signals, any financial red flags. ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "s03",
+      id: "pricing",
       title: "Pricing Intelligence",
       model: "sonar",
       maxTokens: 340,
-      prompt: `${v.name} pricing: exact tier names and costs, enterprise pricing, hidden fees, recent price changes, complaints about pricing. Category: ${v.category}. ${v.userContext}`,
+      prompt: `${vars.name} (${vars.domain}) pricing: exact tier names and costs, enterprise pricing, hidden fees, recent price changes, complaints about pricing. ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "s04",
-      title: "Client Sentiment",
-      model: "sonar",
-      maxTokens: 370,
-      prompt: `${v.name} client sentiment: G2/Capterra rating, top praise themes, top complaint themes, churn signals, NPS if available. ${v.userContext}`,
-    },
-    {
-      id: "s05",
-      title: "Team & Culture",
-      model: "sonar",
-      maxTokens: 340,
-      prompt: `${v.name} team and culture: Glassdoor rating, CEO approval, recent layoffs, hiring trends, culture signals, employee count trend. ${v.userContext}`,
-    },
-    {
-      id: "s06",
-      title: "Security & Compliance",
+      id: "leadership",
+      title: "Leadership Team",
       model: "sonar-pro",
-      maxTokens: 340,
-      prompt: `${v.name} security posture: SOC2, ISO 27001, GDPR, HIPAA certifications, data handling practices, incident history. ${v.riskContext}. ${v.userContext}`,
+      maxTokens: 400,
+      prompt: `List the key leaders at ${vars.name} (${vars.domain}): Founder(s), CEO, board members, and other C-suite executives. For each person, give their name, title, and one short sentence about their background. Format as a bulleted list. ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "s07",
-      title: "Legal & Regulatory",
-      model: "sonar-pro",
-      maxTokens: 480,
-      prompt: `${v.name} legal and regulatory risk 2020-2025: lawsuits, fines, settlements, regulatory actions. Include case names and amounts. ${v.userContext}`,
-    },
-    {
-      id: "s08",
-      title: "Delivery Quality",
+      id: "news",
+      title: "Recent News",
       model: "sonar",
-      maxTokens: 340,
-      prompt: `${v.name} delivery quality: uptime/reliability, notable wins and failures, engineering health, open source contributions. ${v.riskContext}. ${v.userContext}`,
+      maxTokens: 350,
+      prompt: `What is the most relevant recent news about ${vars.name} (${vars.domain}) from the past 6 months? Include product launches, partnerships, funding, acquisitions, layoffs, or any notable events. List 3-5 items with brief descriptions. ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "s09",
-      title: "Competitive Landscape",
-      model: "sonar-pro",
-      maxTokens: 440,
-      prompt: `${v.name} competitive landscape in ${v.category}: top 3-4 competitors with pricing comparison, key differentiators, best alternative and why. ${v.userContext}`,
-    },
-    {
-      id: "s10",
-      title: "Leadership & Momentum",
+      id: "hiring",
+      title: "Hiring",
       model: "sonar",
-      maxTokens: 290,
-      prompt: `${v.name} leadership: CEO and key execs, leadership changes 2023-2025, momentum signals (awards, partnerships, expansion). ${v.userContext}`,
+      maxTokens: 350,
+      prompt: `Is ${vars.name} (${vars.domain}) currently hiring? Check their careers page and job boards. If they have open roles, identify the top 3 departments they are hiring for (e.g. Marketing, Sales, Product, Engineering). For each department, give 1-2 example job titles. If no jobs are found, say so. Site context: ${site.slice(0, 1500)} ${STYLE_RULES} ${vars.userContext}`,
     },
     {
-      id: "neg",
-      title: "Negotiation Intel",
+      id: "competitors",
+      title: "Competitors",
       model: "sonar-pro",
-      maxTokens: 270,
-      prompt: `${v.name} negotiation intelligence: typical discount ranges, contract flexibility, end-of-quarter leverage, known negotiation tactics, best leverage points for a buyer. ${v.userContext}`,
+      maxTokens: 350,
+      prompt: `List the top 3 competitors to ${vars.name} (${vars.domain}). For each competitor, provide: company name, website URL, and one sentence describing how their positioning or service differs from ${vars.name}. ${STYLE_RULES} ${vars.userContext}`,
     },
   ];
+
+  return allQueries.filter((q) => enabledSections.includes(q.id));
 }
 
-export function buildSynthesisPrompt(
+export function buildPainPointsPrompt(
   name: string,
-  category: string,
-  slideContents: Record<string, string>,
-  riskChecks: RiskCheckResult,
+  sectionContents: Record<string, string>,
   userContext: string
 ): string {
-  const slideSummary = Object.entries(slideContents)
+  const summary = Object.entries(sectionContents)
     .map(([id, content]) => `[${id}]\n${content}`)
     .join("\n\n");
 
-  const risk = riskSummary(riskChecks);
-
-  return `You are a senior procurement analyst. Synthesize this vendor due diligence research for ${name} (${category}).
+  return `You are a sales research analyst helping a salesperson prepare for prospecting outreach to ${name}.
 
 RESEARCH DATA:
-${slideSummary}
-
-RISK CHECKS:
-${risk}
+${summary}
 
 ${userContext ? `ADDITIONAL CONTEXT: ${userContext}` : ""}
 
-Respond in EXACTLY this format:
-OVERALL SCORE: X/10
-CATEGORY SCORES: Financial X/10 | Quality X/10 | Security X/10 | Legal X/10 | Longevity X/10
-GREEN FLAGS: [flag1] | [flag2] | [flag3]
-RED FLAGS: [flag1] | [flag2] | [flag3]
-NEGOTIATION POINTS: [point1] | [point2] | [point3]
-RECOMMENDATION: GO / NO-GO / PROCEED WITH CONDITIONS
-RATIONALE: [2 sentences, direct, data-backed]
+Based on all of the research above, identify 3-5 likely pain points that this company might have. These should be specific, actionable pain points that a salesperson could lean into during outreach. Think about what challenges they face given their stage, hiring patterns, competitive landscape, pricing, and recent news.
 
-Be specific. Cite evidence from the research. No fluff.`;
+Format your response as a numbered list. Each pain point should be 1-2 sentences. Be direct and specific. Never use em dashes. Do not say "based on the available search results" or similar qualifiers.`;
 }

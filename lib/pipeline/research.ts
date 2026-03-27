@@ -1,4 +1,4 @@
-import type { SlideQuery } from "./prompts";
+import type { SectionQuery } from "./prompts";
 
 const PRICING: Record<string, { input: number; output: number }> = {
   sonar: { input: 1e-6, output: 1e-6 },
@@ -6,14 +6,14 @@ const PRICING: Record<string, { input: number; output: number }> = {
 };
 
 export async function runResearchQueries(
-  queries: SlideQuery[],
+  queries: SectionQuery[],
   apiKey: string,
   onProgress: (id: string, title: string) => void
 ): Promise<{ results: Record<string, string>; cost: number }> {
   let totalCost = 0;
   const results: Record<string, string> = {};
 
-  const runOne = async (q: SlideQuery): Promise<void> => {
+  const runOne = async (q: SectionQuery): Promise<void> => {
     try {
       const res = await fetch("https://api.perplexity.ai/chat/completions", {
         method: "POST",
@@ -49,7 +49,6 @@ export async function runResearchQueries(
     }
   };
 
-  // Run all 11 queries in parallel
   await Promise.all(queries.map(runOne));
 
   return { results, cost: totalCost };

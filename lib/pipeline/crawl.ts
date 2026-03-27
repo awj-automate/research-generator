@@ -1,5 +1,5 @@
 const STANDARD_PATHS = [
-  "", "/pricing", "/about", "/security", "/terms", "/privacy", "/contact", "/blog",
+  "", "/pricing", "/about", "/careers", "/jobs", "/team", "/blog",
 ];
 
 export async function crawlSite(
@@ -48,11 +48,4 @@ export async function crawlSite(
   }
 
   return results;
-}
-
-export function getLogoUrl(domain: string, logoKey?: string): string {
-  if (logoKey) {
-    return `https://img.logo.dev/${domain}?token=${logoKey}&size=80&format=png`;
-  }
-  return `https://logo.clearbit.com/${domain}`;
 }

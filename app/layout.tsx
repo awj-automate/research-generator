@@ -10,8 +10,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Research Generator",
-  description: "Vendor due diligence in under 3 minutes",
+  title: "LeadLens",
+  description: "Sales research on any company in under 2 minutes",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

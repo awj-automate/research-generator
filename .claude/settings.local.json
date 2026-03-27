@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l lib/pipeline/*.ts)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

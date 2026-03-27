@@ -1,6 +1,6 @@
-# Research Generator
+# LeadLens
 
-Automated vendor due diligence. Enter a company name, domain, and market category. Get a structured research report with a GO / NO-GO verdict in under 3 minutes. Download as a Word doc or open in Google Docs.
+Sales research on any company in under 2 minutes. Enter a company name and domain, get a structured brief with financials, leadership, hiring signals, competitors, and AI-generated pain points.
 
 ## Setup
 
@@ -17,15 +17,26 @@ npm run dev
 |-----|---------|-----------|
 | `FIRECRAWL_API_KEY` | Web crawling | firecrawl.dev |
 | `PERPLEXITY_API_KEY` | Research queries | perplexity.ai/settings/api |
-| `ANTHROPIC_API_KEY` | Synthesis | console.anthropic.com |
+| `ANTHROPIC_API_KEY` | Pain points synthesis | console.anthropic.com |
+
+## Research Sections
+
+- Company Description
+- Financials
+- Pricing Intelligence
+- Leadership Team
+- Recent News
+- Hiring Signals
+- Competitors
+- Likely Pain Points (AI-synthesized)
+
+All sections are toggleable per research run.
 
 ## Pipeline
 
-1. **Site Crawl** - Firecrawl scrapes 8 standard pages
-2. **Risk Checks** - HIBP breach scan + HN sentiment (free)
-3. **Research** - 11 Perplexity queries in parallel
-4. **Synthesis** - Claude scores across 5 risk categories
-5. **Report** - Download as .doc or open in Google Docs
+1. **Site Crawl** - Firecrawl scrapes key pages
+2. **Research** - Parallel Perplexity queries for each enabled section
+3. **Synthesis** - Claude generates pain points from all findings
 
 Cost per run: ~$0.05 in API fees.
 
