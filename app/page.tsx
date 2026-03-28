@@ -25,7 +25,7 @@ export default function LandingPage() {
       <nav className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between animate-fade-in">
         <span className="font-display text-xl tracking-tight text-ink-900">LeadLens</span>
         <Link
-          href="/app"
+          href="/research"
           className="px-5 py-2 rounded-lg bg-burnt-500 text-white text-sm font-medium hover:bg-burnt-600 transition-all hover:shadow-md active:scale-[0.98]"
         >
           Launch App
@@ -47,7 +47,7 @@ export default function LandingPage() {
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
-            href="/app"
+            href="/research"
             className="px-8 py-3.5 rounded-xl bg-burnt-500 text-white font-medium hover:bg-burnt-600 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
           >
             Research a company
@@ -101,7 +101,7 @@ export default function LandingPage() {
           <h2 className="font-display text-2xl text-ink-900 mb-3">Ready to research?</h2>
           <p className="text-sm text-ink-800/40 mb-6">About $0.05 per report in API costs.</p>
           <Link
-            href="/app"
+            href="/research"
             className="inline-block px-8 py-3.5 rounded-xl bg-burnt-500 text-white font-medium hover:bg-burnt-600 transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
           >
             Get started
