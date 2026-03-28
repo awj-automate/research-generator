@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "rm -rf .next && next build",
+    "build": "rm -rf .next/server .next/static .next/BUILD_ID && next build",
     "start": "next start"
   },
   "dependencies": {
