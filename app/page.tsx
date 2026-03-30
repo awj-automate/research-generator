@@ -23,7 +23,13 @@ export default function LandingPage() {
     <div className="min-h-screen overflow-hidden">
       {/* Nav */}
       <nav className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between animate-fade-in">
-        <span className="font-display text-xl tracking-tight text-ink-900">LeadLens</span>
+        <span className="font-display text-xl tracking-tight text-ink-900 flex items-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
+            <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+          </svg>
+          LeadLens
+        </span>
         <Link
           href="/research"
           className="px-5 py-2 rounded-lg bg-burnt-500 text-white text-sm font-medium hover:bg-burnt-600 transition-all hover:shadow-md active:scale-[0.98]"
@@ -111,7 +117,13 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-beige-200">
-        <p className="text-xs text-ink-800/25 font-mono">LeadLens</p>
+        <p className="text-xs text-ink-800/25 font-mono flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
+            <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+          </svg>
+          LeadLens
+        </p>
       </footer>
     </div>
   );

@@ -208,7 +208,11 @@ export default function AppPage() {
     <div className="min-h-screen">
       {/* Nav */}
       <nav className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between animate-fade-in">
-        <Link href="/" className="font-display text-xl tracking-tight text-ink-900 hover:text-burnt-500 transition-colors">
+        <Link href="/" className="font-display text-xl tracking-tight text-ink-900 hover:text-burnt-500 transition-colors flex items-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
+            <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+          </svg>
           LeadLens
         </Link>
       </nav>

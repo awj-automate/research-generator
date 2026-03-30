@@ -12,6 +12,9 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "LeadLens",
   description: "Sales research on any company in under 2 minutes",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
