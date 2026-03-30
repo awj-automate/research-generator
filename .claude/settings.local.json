@@ -20,7 +20,8 @@
       "Bash(npx tsx -e \":*)",
       "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); p.user.findMany\\(\\).then\\(u => { console.log\\(JSON.stringify\\(u\\)\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\(e\\); process.exit\\(1\\); }\\)\")",
       "Bash(find 'C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\research-generator\\\\example-design/' -name *.png -o -name *.jpg -o -name *.jpeg -o -name *.svg -o -name *.html -o -name *.css)",
-      "Bash(tr '}' '\\\\n')"
+      "Bash(tr '}' '\\\\n')",
+      "Bash(grep -oP '\\(?<=>\\)[^<>]{20,100}\\(?=<\\)' \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\research-generator\\\\example-design\\\\feedly.com\\\\market-intelligence.html\")"
     ]
   }
 }

@@ -207,12 +207,12 @@ export default function AppPage() {
   return (
     <div className="min-h-screen bg-surface-50">
       {/* Nav */}
-      <nav className="bg-navy-900 border-b border-white/5">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between animate-fade-in">
-          <Link href="/" className="text-lg font-bold text-white hover:text-brand-400 transition-colors flex items-center gap-2">
+      <nav className="bg-brand-500 sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between animate-fade-in">
+          <Link href="/" className="text-lg font-bold text-white hover:text-brand-50 transition-colors flex items-center gap-2">
             <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="13" cy="13" r="9" stroke="#2bb24c" strokeWidth="3"/>
-              <line x1="20" y1="20" x2="28" y2="28" stroke="#2bb24c" strokeWidth="3" strokeLinecap="round"/>
+              <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="3"/>
+              <line x1="20" y1="20" x2="28" y2="28" stroke="white" strokeWidth="3" strokeLinecap="round"/>
             </svg>
             LeadLens
           </Link>
