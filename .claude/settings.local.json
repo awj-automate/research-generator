@@ -3,7 +3,24 @@
     "allow": [
       "Bash(wc -l lib/pipeline/*.ts)",
       "Bash(npm run:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\")",
+      "Bash(npx create-next-app@14 agency-tracker --typescript --tailwind --app --no-src-dir --use-npm --eslint)",
+      "Bash(npx create-next-app@14 agency-tracker --typescript --tailwind --app --no-src-dir --use-npm --eslint --import-alias \"@/*\")",
+      "Bash(npm i:*)",
+      "Bash(npx prisma:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\api\\\\auth\\\\[...nextauth]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\api\\\\leads\\\\[id]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\api\\\\projects\\\\[id]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\api\\\\admin\\\\users\\\\[id]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\leads\\\\[id]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\DataStaq\\\\agency-tracker\\\\app\\\\projects\\\\[id]\")",
+      "Bash(rm:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npx tsx -e \":*)",
+      "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); p.user.findMany\\(\\).then\\(u => { console.log\\(JSON.stringify\\(u\\)\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\(e\\); process.exit\\(1\\); }\\)\")",
+      "Bash(find 'C:\\\\Users\\\\jeinh\\\\Documents\\\\Side Projects\\\\research-generator\\\\example-design/' -name *.png -o -name *.jpg -o -name *.jpeg -o -name *.svg -o -name *.html -o -name *.css)",
+      "Bash(tr '}' '\\\\n')"
     ]
   }
 }

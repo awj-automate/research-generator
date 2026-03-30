@@ -8,27 +8,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        beige: {
-          50: "#FAF7F2",
-          100: "#F5F0E8",
-          200: "#EBE4D6",
-          300: "#DDD4C1",
+        navy: {
+          900: "#061427",
+          800: "#0a1f3d",
+          700: "#112d54",
+          600: "#1a3d6b",
         },
-        burnt: {
-          400: "#D4915A",
-          500: "#C4733B",
-          600: "#A85D2E",
-          700: "#8C4C25",
+        brand: {
+          50: "#eaf7ed",
+          100: "#d5f0db",
+          200: "#bfe8c9",
+          300: "#7dd694",
+          400: "#40ba5e",
+          500: "#2bb24c",
+          600: "#228e3d",
+          700: "#1a6e2f",
+        },
+        surface: {
+          50: "#fafafa",
+          100: "#f7f7f7",
+          200: "#e6e6e6",
+          300: "#d4d4d4",
         },
         ink: {
-          800: "#2E2A25",
-          900: "#1C1917",
+          400: "#9ca3af",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#121212",
         },
       },
       fontFamily: {
-        display: ["Griel", "Georgia", "serif"],
-        body: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        display: ["var(--font-merriweather)", "Georgia", "serif"],
+        body: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["SF Mono", "Consolas", "monospace"],
       },
     },
   },

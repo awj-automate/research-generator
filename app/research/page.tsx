@@ -205,89 +205,93 @@ export default function AppPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-surface-50">
       {/* Nav */}
-      <nav className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between animate-fade-in">
-        <Link href="/" className="font-display text-xl tracking-tight text-ink-900 hover:text-burnt-500 transition-colors flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
-            <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-          </svg>
-          LeadLens
-        </Link>
+      <nav className="bg-navy-900 border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between animate-fade-in">
+          <Link href="/" className="text-lg font-bold text-white hover:text-brand-400 transition-colors flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="13" cy="13" r="9" stroke="#2bb24c" strokeWidth="3"/>
+              <line x1="20" y1="20" x2="28" y2="28" stroke="#2bb24c" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+            LeadLens
+          </Link>
+        </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-6 pb-20">
+      <div className="max-w-3xl mx-auto px-6 py-10 pb-20">
         {/* Input Form */}
         {!running && !result && (
-          <div className="animate-slide-up">
+          <div className="animate-slide-md">
             <h1 className="font-display text-3xl text-ink-900 mb-1">New Research</h1>
-            <p className="text-sm text-ink-800/40 mb-8 font-mono">Enter a company to research</p>
+            <p className="text-sm text-ink-600 mb-8">Enter a company to research</p>
 
-            <div className="space-y-4 mb-8">
-              <div>
-                <label className="block text-xs font-mono text-ink-800/40 uppercase tracking-wider mb-1.5">
-                  Company Name *
-                </label>
-                <input
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Notion"
-                  className="w-full px-4 py-3 rounded-xl border border-beige-200 bg-white text-sm text-ink-900 placeholder:text-ink-800/20 focus:outline-none focus:ring-2 focus:ring-burnt-500/20 focus:border-burnt-400 transition-all"
-                />
-              </div>
+            <div className="luminous-frame bg-white p-6 sm:p-8 mb-6">
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wider mb-1.5">
+                    Company Name *
+                  </label>
+                  <input
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder="Notion"
+                    className="w-full px-4 py-3 rounded-lg border border-surface-200 bg-surface-50 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-mono text-ink-800/40 uppercase tracking-wider mb-1.5">
-                  Domain *
-                </label>
-                <input
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  placeholder="notion.so"
-                  className="w-full px-4 py-3 rounded-xl border border-beige-200 bg-white text-sm text-ink-900 placeholder:text-ink-800/20 focus:outline-none focus:ring-2 focus:ring-burnt-500/20 focus:border-burnt-400 transition-all"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wider mb-1.5">
+                    Domain *
+                  </label>
+                  <input
+                    value={domain}
+                    onChange={(e) => setDomain(e.target.value)}
+                    placeholder="notion.so"
+                    className="w-full px-4 py-3 rounded-lg border border-surface-200 bg-surface-50 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-mono text-ink-800/40 uppercase tracking-wider mb-1.5">
-                  Extra URLs <span className="text-ink-800/20">(optional)</span>
-                </label>
-                <input
-                  value={urls}
-                  onChange={(e) => setUrls(e.target.value)}
-                  placeholder="notion.so/customers notion.so/enterprise"
-                  className="w-full px-4 py-3 rounded-xl border border-beige-200 bg-white text-sm text-ink-900 placeholder:text-ink-800/20 focus:outline-none focus:ring-2 focus:ring-burnt-500/20 focus:border-burnt-400 transition-all"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wider mb-1.5">
+                    Extra URLs <span className="text-ink-400 normal-case">(optional)</span>
+                  </label>
+                  <input
+                    value={urls}
+                    onChange={(e) => setUrls(e.target.value)}
+                    placeholder="notion.so/customers notion.so/enterprise"
+                    className="w-full px-4 py-3 rounded-lg border border-surface-200 bg-surface-50 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-mono text-ink-800/40 uppercase tracking-wider mb-1.5">
-                  Context <span className="text-ink-800/20">(optional)</span>
-                </label>
-                <textarea
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
-                  placeholder="We sell data infrastructure tools and want to see if they are a good prospect..."
-                  rows={2}
-                  className="w-full px-4 py-3 rounded-xl border border-beige-200 bg-white text-sm text-ink-900 placeholder:text-ink-800/20 focus:outline-none focus:ring-2 focus:ring-burnt-500/20 focus:border-burnt-400 transition-all resize-y"
-                />
+                <div>
+                  <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wider mb-1.5">
+                    Context <span className="text-ink-400 normal-case">(optional)</span>
+                  </label>
+                  <textarea
+                    value={context}
+                    onChange={(e) => setContext(e.target.value)}
+                    placeholder="We sell data infrastructure tools and want to see if they are a good prospect..."
+                    rows={2}
+                    className="w-full px-4 py-3 rounded-lg border border-surface-200 bg-surface-50 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all resize-y"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Section Toggles */}
             <div className="mb-8">
-              <label className="block text-xs font-mono text-ink-800/40 uppercase tracking-wider mb-3">
+              <label className="block text-xs font-semibold text-ink-700 uppercase tracking-wider mb-3">
                 Research Sections
               </label>
-              <div className="rounded-xl border border-beige-200 bg-white overflow-hidden divide-y divide-beige-100">
+              <div className="luminous-frame bg-white overflow-hidden divide-y divide-surface-100">
                 {ALL_SECTIONS.map((section) => (
                   <div
                     key={section.id}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-beige-50/50 transition-colors cursor-pointer"
+                    className="flex items-center justify-between px-5 py-3.5 hover:bg-brand-50/30 transition-colors cursor-pointer"
                     onClick={() => toggleSection(section.id)}
                   >
-                    <span className={`text-sm transition-colors ${enabledSections[section.id] ? "text-ink-900" : "text-ink-800/30"}`}>
+                    <span className={`text-sm transition-colors ${enabledSections[section.id] ? "text-ink-900 font-medium" : "text-ink-400"}`}>
                       {section.title}
                     </span>
                     <div className={`toggle-switch ${enabledSections[section.id] ? "active" : ""}`} />
@@ -299,7 +303,7 @@ export default function AppPage() {
             <button
               onClick={handleSubmit}
               disabled={!companyName || !domain}
-              className="w-full px-8 py-3.5 rounded-xl bg-burnt-500 text-white font-medium hover:bg-burnt-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md active:scale-[0.99]"
+              className="w-full px-8 py-4 rounded-full bg-brand-500 text-white font-semibold hover:bg-brand-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-lg shadow-brand-500/20 hover:shadow-xl hover:shadow-brand-500/30 active:scale-[0.99]"
             >
               Research Company
             </button>
@@ -312,7 +316,7 @@ export default function AppPage() {
             <h1 className="font-display text-3xl text-ink-900 mb-1">
               Researching {companyName}
             </h1>
-            <p className="text-sm text-ink-800/40 mb-8 font-mono">{domain}</p>
+            <p className="text-sm text-ink-600 mb-8">{domain}</p>
 
             <div className="space-y-3 stagger-children">
               {LAYER_NAMES.map((name, i) => {
@@ -324,33 +328,35 @@ export default function AppPage() {
                 return (
                   <div
                     key={i}
-                    className={`p-4 rounded-xl border transition-all duration-300 ${
+                    className={`p-5 rounded-xl border transition-all duration-300 ${
                       done
-                        ? "bg-white border-beige-200"
+                        ? "bg-white border-surface-200 shadow-sm"
                         : started
-                        ? "bg-burnt-500/5 border-burnt-400/30 shadow-sm"
-                        : "bg-beige-100 border-beige-200 opacity-40"
+                        ? "bg-brand-50 border-brand-200 shadow-md shadow-brand-500/5 animate-pulse-glow"
+                        : "bg-surface-100 border-surface-200 opacity-40"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-xs font-mono text-burnt-500 font-medium w-5">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                          done ? "bg-brand-100 text-brand-600" : started ? "bg-brand-500 text-white" : "bg-surface-200 text-ink-400"
+                        }`}>
                           {String(i).padStart(2, "0")}
-                        </span>
-                        <span className="text-sm font-medium text-ink-900">{name}</span>
+                        </div>
+                        <span className="text-sm font-semibold text-ink-900">{name}</span>
                       </div>
                       {done && (
-                        <span className="text-xs text-emerald-600 font-mono animate-scale-in">done</span>
+                        <span className="text-xs text-brand-600 font-semibold animate-scale-in">Complete</span>
                       )}
                       {started && !done && (
-                        <svg className="animate-spin h-3.5 w-3.5 text-burnt-500" viewBox="0 0 24 24" fill="none">
+                        <svg className="animate-spin h-4 w-4 text-brand-500" viewBox="0 0 24 24" fill="none">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
                       )}
                     </div>
                     {latest && (
-                      <p className="text-xs text-ink-800/40 mt-1 font-mono truncate">
+                      <p className="text-xs text-ink-400 mt-2 ml-11 truncate">
                         {latest.label}
                       </p>
                     )}
@@ -370,42 +376,43 @@ export default function AppPage() {
 
         {/* Results */}
         {result && (
-          <div className="animate-slide-up">
-            <div className="flex items-center justify-between mb-6">
+          <div className="animate-slide-md">
+            <div className="flex items-center justify-between mb-8">
               <div>
                 <h1 className="font-display text-3xl text-ink-900">{companyName}</h1>
-                <p className="text-sm text-ink-800/40 font-mono">{domain}</p>
+                <p className="text-sm text-ink-600">{domain}</p>
               </div>
               <button
                 onClick={reset}
-                className="text-xs text-ink-800/40 hover:text-ink-800/60 font-mono transition-colors px-3 py-1.5 rounded-lg hover:bg-beige-100"
+                className="text-sm text-ink-400 hover:text-ink-700 transition-colors px-4 py-2 rounded-full border border-surface-200 hover:bg-white hover:shadow-sm"
               >
                 New research
               </button>
             </div>
 
-            {/* Stats + Actions */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="p-3 rounded-xl bg-white border border-beige-200 text-center">
-                <div className="text-lg font-display text-ink-900">{result.duration}s</div>
-                <div className="text-[10px] font-mono text-ink-800/40 uppercase">Duration</div>
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="p-4 rounded-xl bg-white border border-surface-200 shadow-sm text-center">
+                <div className="text-2xl font-bold text-ink-900">{result.duration}s</div>
+                <div className="text-xs text-ink-400 uppercase font-semibold mt-1">Duration</div>
               </div>
-              <div className="p-3 rounded-xl bg-white border border-beige-200 text-center">
-                <div className="text-lg font-display text-ink-900">${result.cost}</div>
-                <div className="text-[10px] font-mono text-ink-800/40 uppercase">API Cost</div>
+              <div className="p-4 rounded-xl bg-white border border-surface-200 shadow-sm text-center">
+                <div className="text-2xl font-bold text-ink-900">${result.cost}</div>
+                <div className="text-xs text-ink-400 uppercase font-semibold mt-1">API Cost</div>
               </div>
             </div>
 
-            <div className="flex gap-3 mb-8">
+            {/* Actions */}
+            <div className="flex gap-3 mb-10">
               <button
                 onClick={() => downloadDoc(companyName, sections, painPoints)}
-                className="flex-1 px-4 py-3 rounded-xl bg-burnt-500 text-white font-medium hover:bg-burnt-600 transition-all text-sm shadow-sm hover:shadow-md active:scale-[0.99]"
+                className="flex-1 px-4 py-3.5 rounded-full bg-brand-500 text-white font-semibold hover:bg-brand-400 transition-all text-sm shadow-lg shadow-brand-500/20 hover:shadow-xl active:scale-[0.99]"
               >
                 Download .doc
               </button>
               <button
                 onClick={() => openInGoogleDocs(companyName, sections, painPoints)}
-                className="flex-1 px-4 py-3 rounded-xl bg-white border border-beige-200 text-ink-900 font-medium hover:bg-beige-50 transition-all text-sm hover:shadow-sm active:scale-[0.99]"
+                className="flex-1 px-4 py-3.5 rounded-full bg-white border border-surface-200 text-ink-900 font-semibold hover:bg-surface-50 transition-all text-sm shadow-sm hover:shadow-md active:scale-[0.99]"
               >
                 Open in Google Docs
               </button>
@@ -414,9 +421,9 @@ export default function AppPage() {
             {/* Research Sections */}
             <div className="space-y-4 stagger-children">
               {sections.map((section) => (
-                <div key={section.id} className="p-5 rounded-xl bg-white border border-beige-200">
-                  <h3 className="font-display text-lg text-ink-900 mb-3">{section.title}</h3>
-                  <div className="text-sm text-ink-800/70 leading-relaxed space-y-2">
+                <div key={section.id} className="luminous-frame bg-white p-6">
+                  <h3 className="font-display text-xl text-ink-900 mb-3">{section.title}</h3>
+                  <div className="text-sm text-ink-700 leading-relaxed space-y-2">
                     {section.content.split(/\n\n+/).filter(Boolean).map((p, i) => (
                       <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />
                     ))}
@@ -426,12 +433,14 @@ export default function AppPage() {
 
               {/* Pain Points */}
               {painPoints && painPoints.points.length > 0 && (
-                <div className="p-5 rounded-xl bg-burnt-500/5 border border-burnt-400/20">
-                  <h3 className="font-display text-lg text-ink-900 mb-3">Likely Pain Points</h3>
-                  <ul className="space-y-2">
+                <div className="luminous-frame bg-brand-50 p-6 border-brand-200">
+                  <h3 className="font-display text-xl text-ink-900 mb-4">Likely Pain Points</h3>
+                  <ul className="space-y-3">
                     {painPoints.points.map((point, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-ink-800/70 leading-relaxed">
-                        <span className="text-burnt-500 font-mono text-xs mt-0.5 shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                      <li key={i} className="flex gap-3 text-sm text-ink-700 leading-relaxed">
+                        <span className="w-6 h-6 rounded-lg bg-brand-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
                         {point}
                       </li>
                     ))}
