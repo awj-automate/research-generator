@@ -131,18 +131,18 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-hidden bg-surface-50">
       {/* Nav - green accent background */}
-      <nav className="bg-brand-500 sticky top-0 z-50">
+      <nav className="bg-brand-500 sticky top-0 z-50 shadow-md shadow-brand-700/15">
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
-          <span className="text-lg font-bold text-white flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <span className="flex items-center gap-2.5">
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="3"/>
               <line x1="20" y1="20" x2="28" y2="28" stroke="white" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            LeadLens
+            <span className="font-logo text-[22px] text-white tracking-tight italic">LeadLens</span>
           </span>
           <Link
             href="/research"
-            className="px-5 py-2 rounded-full bg-white text-brand-600 text-sm font-semibold hover:bg-brand-50 transition-all active:scale-[0.97]"
+            className="btn-cta px-6 py-2.5 rounded-full bg-white text-brand-600 text-sm font-semibold"
           >
             Launch App
           </Link>
@@ -167,7 +167,7 @@ export default function LandingPage() {
             <div className="flex items-center justify-center gap-4 mb-16">
               <Link
                 href="/research"
-                className="px-8 py-3.5 rounded-full bg-brand-500 text-white text-base font-semibold hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/25 active:scale-[0.97]"
+                className="btn-cta px-8 py-3.5 rounded-full bg-brand-500 text-white text-base font-semibold"
               >
                 Research a company
               </Link>
@@ -290,7 +290,7 @@ export default function LandingPage() {
           <p className="text-base text-ink-600 mb-10">About $0.05 per report in API costs. No subscription required.</p>
           <Link
             href="/research"
-            className="inline-block px-8 py-4 rounded-full bg-brand-500 text-white text-base font-semibold hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/25 active:scale-[0.97]"
+            className="btn-cta inline-block px-8 py-4 rounded-full bg-brand-500 text-white text-base font-semibold"
           >
             Get started
           </Link>
@@ -300,13 +300,13 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-ink-900 py-10">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <p className="text-sm text-white/30 flex items-center gap-2">
+          <span className="flex items-center gap-2 text-white/30">
             <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
               <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            LeadLens
-          </p>
+            <span className="font-logo text-base italic">LeadLens</span>
+          </span>
           <p className="text-xs text-white/20">Sales research, automated</p>
         </div>
       </footer>

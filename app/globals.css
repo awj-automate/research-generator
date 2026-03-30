@@ -99,7 +99,7 @@ body {
   flex-shrink: 0;
 }
 .toggle-switch.active {
-  background: #2bb24c;
+  background: #45b868;
 }
 .toggle-switch::after {
   content: "";
@@ -124,6 +124,38 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.5);
   box-shadow: 10px 50px 100px rgba(0,0,0,0.08);
+}
+
+/* CTA button shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.btn-cta {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(.15, 0, .35, 1);
+  box-shadow: 0 4px 15px rgba(69, 184, 104, 0.3), 0 1px 3px rgba(0,0,0,0.08);
+}
+.btn-cta:hover {
+  box-shadow: 0 8px 30px rgba(69, 184, 104, 0.4), 0 2px 6px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+.btn-cta:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn-cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Luminous frame */
