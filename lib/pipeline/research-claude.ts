@@ -4,8 +4,9 @@ const CLAUDE_PRICING: Record<string, { input: number; output: number }> = {
   "claude-sonnet-4-6": { input: 3e-6, output: 15e-6 },
 };
 
+const WEB_SEARCH_COST_PER_SEARCH = 0.01; // $10 per 1,000 searches
+
 // Maps Perplexity model tiers to Claude equivalents
-// sonar and sonar-pro both map to sonnet since we're consolidating
 const MODEL_MAP: Record<string, string> = {
   sonar: "claude-sonnet-4-6",
   "sonar-pro": "claude-sonnet-4-6",
@@ -28,7 +29,7 @@ export async function runResearchQueriesClaude(
         headers: {
           "Content-Type": "application/json",
           "x-api-key": apiKey,
-          "anthropic-version": "2025-03-05",
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
           model,
@@ -53,7 +54,7 @@ export async function runResearchQueriesClaude(
 
       const data = await res.json();
 
-      // Extract text content from Claude's response (may include tool_use and text blocks)
+      // Extract text content from Claude's response (may include server_tool_use and web_search_tool_result blocks)
       const textBlocks = (data.content || []).filter(
         (block: { type: string }) => block.type === "text"
       );
@@ -62,11 +63,16 @@ export async function runResearchQueriesClaude(
         .join("\n");
       results[q.id] = content;
 
+      // Token costs
       const usage = data.usage || {};
       const rates = CLAUDE_PRICING[model] || CLAUDE_PRICING["claude-sonnet-4-6"];
       totalCost +=
         (usage.input_tokens || 0) * rates.input +
         (usage.output_tokens || 0) * rates.output;
+
+      // Web search costs
+      const searchRequests = usage.server_tool_use?.web_search_requests || 0;
+      totalCost += searchRequests * WEB_SEARCH_COST_PER_SEARCH;
 
       onProgress(q.id, q.title);
     } catch (err) {

@@ -7,6 +7,10 @@ import { runSynthesis } from "@/lib/pipeline/synthesis";
 
 export const maxDuration = 300;
 
+function hasContent(results: Record<string, string>): boolean {
+  return Object.values(results).some((v) => v.trim().length > 0);
+}
+
 export async function POST(req: NextRequest) {
   const { companyName, domain, urls, context, sections } = await req.json();
 
@@ -87,7 +91,7 @@ export async function POST(req: NextRequest) {
         send("sections", { pipeline: "perplexity", sections: pxSectionData });
         send("sections", { pipeline: "claude", sections: clSectionData });
 
-        // ── Layer 2: Pain Points Synthesis (both in parallel) ───────
+        // ── Layer 2: Pain Points Synthesis (each isolated) ──────────
         let pxPainPoints = null;
         let clPainPoints = null;
         let pxSynthCost = 0;
@@ -97,30 +101,51 @@ export async function POST(req: NextRequest) {
           send("progress", { pipeline: "perplexity", layer: 2, label: "Synthesizing pain points...", status: "start" });
           send("progress", { pipeline: "claude", layer: 2, label: "Synthesizing pain points...", status: "start" });
 
-          const pxPrompt = buildPainPointsPrompt(companyName, pxResearch.results, context || "");
-          const clPrompt = buildPainPointsPrompt(companyName, clResearch.results, context || "");
+          // Run synthesis independently so one failing doesn't kill the other
+          const pxSynthPromise = (async () => {
+            if (!hasContent(pxResearch.results)) return null;
+            try {
+              const prompt = buildPainPointsPrompt(companyName, pxResearch.results, context || "");
+              return await runSynthesis(prompt, anKey);
+            } catch (err) {
+              console.error("Perplexity synthesis failed:", err);
+              return null;
+            }
+          })();
 
-          const [pxSynth, clSynth] = await Promise.all([
-            Object.keys(pxResearch.results).length > 0
-              ? runSynthesis(pxPrompt, anKey)
-              : Promise.resolve({ result: { points: [] as string[], raw: "" }, cost: 0 }),
-            Object.keys(clResearch.results).length > 0
-              ? runSynthesis(clPrompt, anKey)
-              : Promise.resolve({ result: { points: [] as string[], raw: "" }, cost: 0 }),
-          ]);
+          const clSynthPromise = (async () => {
+            if (!hasContent(clResearch.results)) return null;
+            try {
+              const prompt = buildPainPointsPrompt(companyName, clResearch.results, context || "");
+              return await runSynthesis(prompt, anKey);
+            } catch (err) {
+              console.error("Claude synthesis failed:", err);
+              return null;
+            }
+          })();
 
-          pxPainPoints = pxSynth.result;
-          clPainPoints = clSynth.result;
-          pxSynthCost = pxSynth.cost;
-          clSynthCost = clSynth.cost;
+          const [pxSynth, clSynth] = await Promise.all([pxSynthPromise, clSynthPromise]);
 
-          send("progress", { pipeline: "perplexity", layer: 2, label: `Found ${pxPainPoints.points.length} pain points`, status: "done" });
-          send("progress", { pipeline: "claude", layer: 2, label: `Found ${clPainPoints.points.length} pain points`, status: "done" });
-          send("painpoints", { pipeline: "perplexity", painpoints: pxPainPoints });
-          send("painpoints", { pipeline: "claude", painpoints: clPainPoints });
+          if (pxSynth) {
+            pxPainPoints = pxSynth.result;
+            pxSynthCost = pxSynth.cost;
+            send("progress", { pipeline: "perplexity", layer: 2, label: `Found ${pxPainPoints.points.length} pain points`, status: "done" });
+            send("painpoints", { pipeline: "perplexity", painpoints: pxPainPoints });
+          } else {
+            send("progress", { pipeline: "perplexity", layer: 2, label: "No research data for synthesis", status: "done" });
+          }
+
+          if (clSynth) {
+            clPainPoints = clSynth.result;
+            clSynthCost = clSynth.cost;
+            send("progress", { pipeline: "claude", layer: 2, label: `Found ${clPainPoints.points.length} pain points`, status: "done" });
+            send("painpoints", { pipeline: "claude", painpoints: clPainPoints });
+          } else {
+            send("progress", { pipeline: "claude", layer: 2, label: "No research data for synthesis", status: "done" });
+          }
         }
 
-        // ── Final result with cost breakdown ────────────────────────
+        // ── Final result with cost breakdown (always sent) ──────────
         const duration = (Date.now() - startTime) / 1000;
 
         send("result", {
