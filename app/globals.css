@@ -25,28 +25,91 @@ body {
 
 /* Slide-in animations */
 @keyframes slide-in-sm {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 @keyframes slide-in-md {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(50px) scale(0.95); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 @keyframes slide-in-xl {
-  from { opacity: 0; transform: translateY(60px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(80px) scale(0.9) rotateX(8deg); filter: blur(12px); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); filter: blur(0); }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; filter: blur(6px); }
+  to { opacity: 1; filter: blur(0); }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.8); filter: blur(4px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* Hero-specific animations */
+@keyframes hero-pill {
+  0% { opacity: 0; transform: translateY(-30px) scale(0.5); filter: blur(10px); }
+  60% { opacity: 1; transform: translateY(4px) scale(1.05); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes hero-title {
+  0% { opacity: 0; transform: translateY(60px) scale(0.85); filter: blur(15px); letter-spacing: 0.1em; }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); letter-spacing: -0.025em; }
+}
+
+@keyframes hero-subtitle {
+  0% { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes hero-buttons {
+  0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(6px); }
+  70% { opacity: 1; transform: translateY(-4px) scale(1.02); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes hero-dashboard {
+  0% { opacity: 0; transform: translateY(120px) scale(0.85) perspective(800px) rotateX(10deg); filter: blur(15px); }
+  100% { opacity: 1; transform: translateY(0) scale(1) perspective(800px) rotateX(0deg); filter: blur(0); }
+}
+
+@keyframes gradient-text-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-hero-pill {
+  animation: hero-pill 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hero-title {
+  animation: hero-title 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hero-subtitle {
+  animation: hero-subtitle 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hero-buttons {
+  animation: hero-buttons 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hero-dashboard {
+  animation: hero-dashboard 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-gradient-text {
+  background: linear-gradient(90deg, #4D8BFE, #7EB0FF, #4D8BFE);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-text-shift 4s ease infinite;
 }
 
 @keyframes pulse-glow {
@@ -60,15 +123,15 @@ body {
 }
 
 .animate-slide-sm {
-  animation: slide-in-sm 0.3s cubic-bezier(.01, 0, .5, 1) forwards;
+  animation: slide-in-sm 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-md {
-  animation: slide-in-md 0.4s cubic-bezier(.01, 0, .5, 1) forwards;
+  animation: slide-in-md 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-xl {
-  animation: slide-in-xl 0.6s cubic-bezier(.01, 0, .5, 1) forwards;
+  animation: slide-in-xl 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-fade-in {

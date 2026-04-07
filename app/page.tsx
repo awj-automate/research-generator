@@ -147,37 +147,37 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-ds-surface pt-20 pb-0 overflow-hidden">
+      <section className="bg-ds-surface pt-20 pb-0 overflow-hidden" style={{ perspective: "1200px" }}>
         <div className="max-w-4xl mx-auto px-6 text-center mb-16">
-          <div className="animate-slide-xl">
+          <div className="opacity-0 animate-hero-pill" style={{ animationDelay: "0.1s" }}>
             <div className="inline-block mb-5 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-ds-primary text-sm font-semibold">
               Sales research, automated
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-ds-heading mb-5">
-              Know any company<br />
-              <span className="text-ds-primary">before you reach out</span>
-            </h1>
-            <p className="text-base sm:text-lg text-ds-text max-w-xl mx-auto mb-10 leading-relaxed">
-              Enter a company name. Get financials, leadership, hiring signals, competitors,
-              and AI-generated pain points in under 2 minutes.
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-16">
-              <Link
-                href="/research"
-                className="btn-cta px-8 py-3.5 rounded-button bg-ds-primary text-white text-base font-semibold"
-              >
-                Research a company
-              </Link>
-              <a
-                href="#how"
-                className="px-6 py-3.5 rounded-button text-ds-text font-semibold hover:text-ds-heading transition-colors"
-              >
-                How it works
-              </a>
-            </div>
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-ds-heading mb-5 opacity-0 animate-hero-title" style={{ animationDelay: "0.25s" }}>
+            Know any company<br />
+            <span className="hero-gradient-text">before you reach out</span>
+          </h1>
+          <p className="text-base sm:text-lg text-ds-text max-w-xl mx-auto mb-10 leading-relaxed opacity-0 animate-hero-subtitle" style={{ animationDelay: "0.5s" }}>
+            Enter a company name. Get financials, leadership, hiring signals, competitors,
+            and AI-generated pain points in under 2 minutes.
+          </p>
+          <div className="flex items-center justify-center gap-4 mb-16 opacity-0 animate-hero-buttons" style={{ animationDelay: "0.7s" }}>
+            <Link
+              href="/research"
+              className="btn-cta px-8 py-3.5 rounded-button bg-ds-primary text-white text-base font-semibold"
+            >
+              Research a company
+            </Link>
+            <a
+              href="#how"
+              className="px-6 py-3.5 rounded-button text-ds-text font-semibold hover:text-ds-heading transition-colors"
+            >
+              How it works
+            </a>
           </div>
         </div>
-        <div className="relative max-w-5xl mx-auto px-6 animate-slide-md" style={{ animationDelay: "0.2s" }}>
+        <div className="relative max-w-5xl mx-auto px-6 opacity-0 animate-hero-dashboard" style={{ animationDelay: "0.9s" }}>
           <MockDashboard />
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ds-bg to-transparent" />
         </div>
