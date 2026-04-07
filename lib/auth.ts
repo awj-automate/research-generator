@@ -1,11 +1,42 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    Credentials({
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email as string;
+        const password = credentials?.password as string;
+        if (!email || !password) return null;
+
+        const { getDb } = await import("./db");
+        const { users } = await import("./db/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = getDb();
+
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email))
+          .limit(1);
+
+        if (!user || !user.password) return null;
+
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) return null;
+
+        return { id: user.id, email: user.email, name: user.name, image: user.image };
+      },
     }),
   ],
   session: { strategy: "jwt" },
@@ -14,36 +45,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (!user.email) return false;
-      // Lazily import DB to avoid build-time initialization
-      const { getDb } = await import("./db");
-      const { users, accounts: accountsTable } = await import("./db/schema");
-      const { eq } = await import("drizzle-orm");
-      const db = getDb();
 
-      // Upsert user
-      const existing = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, user.email))
-        .limit(1);
+      // Only handle OAuth account linking (not credentials)
+      if (account && account.provider !== "credentials") {
+        const { getDb } = await import("./db");
+        const { users, accounts: accountsTable } = await import("./db/schema");
+        const { eq } = await import("drizzle-orm");
+        const db = getDb();
 
-      let userId: string;
-      if (existing.length > 0) {
-        userId = existing[0].id;
-      } else {
-        const [newUser] = await db
-          .insert(users)
-          .values({
-            email: user.email,
-            name: user.name || null,
-            image: user.image || null,
-          })
-          .returning();
-        userId = newUser.id;
-      }
+        const existing = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, user.email))
+          .limit(1);
 
-      // Upsert account link
-      if (account) {
+        let userId: string;
+        if (existing.length > 0) {
+          userId = existing[0].id;
+        } else {
+          const [newUser] = await db
+            .insert(users)
+            .values({
+              email: user.email,
+              name: user.name || null,
+              image: user.image || null,
+            })
+            .returning();
+          userId = newUser.id;
+        }
+
         const existingAccount = await db
           .select()
           .from(accountsTable)
@@ -62,13 +92,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token_type: account.token_type || null,
             scope: account.scope || null,
             id_token: account.id_token || null,
-            session_state: account.session_state as string || null,
+            session_state: (account.session_state as string) || null,
           });
         }
+
+        user.id = userId;
       }
 
-      // Store userId in user object so JWT callback can access it
-      user.id = userId;
       return true;
     },
     jwt({ token, user }) {

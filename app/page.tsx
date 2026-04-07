@@ -20,7 +20,7 @@ const SECTIONS = [
 
 function MockDashboard() {
   return (
-    <div className="bg-ds-card rounded-card shadow-2xl shadow-black/10 border border-ds-border overflow-hidden max-w-4xl mx-auto">
+    <div className="bg-ds-card rounded-card shadow-2xl shadow-black/10 border border-ds-border overflow-hidden max-w-4xl mx-auto card-glow">
       {/* Title bar */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-ds-border bg-ds-surface">
         <div className="flex gap-1.5">
@@ -147,10 +147,15 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-ds-surface pt-20 pb-0 overflow-hidden" style={{ perspective: "1200px" }}>
-        <div className="max-w-4xl mx-auto px-6 text-center mb-16">
+      <section className="bg-ds-surface pt-20 pb-0 overflow-hidden relative" style={{ perspective: "1200px" }}>
+        {/* Floating orbs */}
+        <div className="orb orb-blue" style={{ width: 300, height: 300, top: -60, left: -80 }} />
+        <div className="orb orb-purple" style={{ width: 250, height: 250, top: 100, right: -50 }} />
+        <div className="orb orb-cyan" style={{ width: 200, height: 200, bottom: 60, left: "30%" }} />
+
+        <div className="max-w-4xl mx-auto px-6 text-center mb-16 relative z-10">
           <div className="opacity-0 animate-hero-pill" style={{ animationDelay: "0.1s" }}>
-            <div className="inline-block mb-5 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-ds-primary text-sm font-semibold">
+            <div className="inline-block mb-5 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-ds-primary text-sm font-semibold badge-float">
               Sales research, automated
             </div>
           </div>
@@ -194,7 +199,7 @@ export default function LandingPage() {
             {STEPS.map((step) => (
               <div
                 key={step.num}
-                className="group p-6 rounded-card bg-ds-card border border-ds-border shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className="group p-6 rounded-card bg-ds-card border border-ds-border shadow-sm tilt-card animated-border"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-ds-primary group-hover:text-white transition-colors">
                   <span className="text-sm font-bold text-ds-primary group-hover:text-white">{step.num}</span>
@@ -263,8 +268,10 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonial */}
-      <section className="bg-ds-surface py-20">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="bg-ds-surface py-20 relative overflow-hidden">
+        <div className="orb orb-blue" style={{ width: 200, height: 200, top: -40, right: "10%" }} />
+        <div className="orb orb-purple" style={{ width: 180, height: 180, bottom: -30, left: "15%" }} />
+        <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <blockquote className="text-2xl sm:text-3xl font-bold text-ds-heading leading-snug mb-8">
             &ldquo;What used to take me 30 minutes of manual research now takes under 2 minutes. The pain points alone are worth it.&rdquo;
           </blockquote>
