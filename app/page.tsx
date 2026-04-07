@@ -148,10 +148,23 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="bg-ds-surface pt-20 pb-0 overflow-hidden relative" style={{ perspective: "1200px" }}>
-        {/* Floating orbs */}
-        <div className="orb orb-blue" style={{ width: 300, height: 300, top: -60, left: -80 }} />
-        <div className="orb orb-purple" style={{ width: 250, height: 250, top: 100, right: -50 }} />
-        <div className="orb orb-cyan" style={{ width: 200, height: 200, bottom: 60, left: "30%" }} />
+        {/* Floating orbs — big, vivid, layered */}
+        <div className="orb orb-1" style={{ width: 500, height: 500, top: -150, left: -120 }} />
+        <div className="orb orb-2" style={{ width: 400, height: 400, top: 50, right: -100 }} />
+        <div className="orb orb-3" style={{ width: 350, height: 350, bottom: 0, left: "25%" }} />
+        <div className="orb orb-4" style={{ width: 300, height: 300, top: -50, right: "20%" }} />
+        <div className="orb orb-5" style={{ width: 250, height: 250, bottom: 100, right: "10%" }} />
+        <div className="orb orb-6" style={{ width: 280, height: 280, top: 200, left: "10%" }} />
+
+        {/* Particles */}
+        <div className="particle" style={{ top: "15%", left: "12%", animation: "particle-drift 6s ease-in-out infinite" }} />
+        <div className="particle" style={{ top: "25%", left: "85%", animation: "particle-drift 8s ease-in-out infinite 1s", width: 3, height: 3 }} />
+        <div className="particle" style={{ top: "45%", left: "20%", animation: "particle-drift 7s ease-in-out infinite 2s", width: 5, height: 5 }} />
+        <div className="particle" style={{ top: "35%", left: "75%", animation: "particle-drift 9s ease-in-out infinite 0.5s" }} />
+        <div className="particle" style={{ top: "60%", left: "50%", animation: "particle-drift 6.5s ease-in-out infinite 1.5s", width: 3, height: 3 }} />
+        <div className="particle" style={{ top: "20%", left: "40%", animation: "particle-drift 10s ease-in-out infinite 3s", width: 5, height: 5 }} />
+        <div className="particle" style={{ top: "50%", left: "65%", animation: "particle-drift 7.5s ease-in-out infinite 2.5s" }} />
+        <div className="particle" style={{ top: "10%", left: "60%", animation: "particle-drift 8.5s ease-in-out infinite 0.8s", width: 6, height: 6 }} />
 
         <div className="max-w-4xl mx-auto px-6 text-center mb-16 relative z-10">
           <div className="opacity-0 animate-hero-pill" style={{ animationDelay: "0.1s" }}>
@@ -159,7 +172,7 @@ export default function LandingPage() {
               Sales research, automated
             </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-ds-heading mb-5 opacity-0 animate-hero-title" style={{ animationDelay: "0.25s" }}>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-ds-heading mb-5 opacity-0 animate-hero-title text-shimmer" style={{ animationDelay: "0.25s" }}>
             Know any company<br />
             <span className="hero-gradient-text">before you reach out</span>
           </h1>
@@ -170,7 +183,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-center gap-4 mb-16 opacity-0 animate-hero-buttons" style={{ animationDelay: "0.7s" }}>
             <Link
               href="/research"
-              className="btn-cta px-8 py-3.5 rounded-button bg-ds-primary text-white text-base font-semibold"
+              className="btn-cta cta-pulse px-8 py-3.5 rounded-button bg-ds-primary text-white text-base font-semibold"
             >
               Research a company
             </Link>
@@ -183,7 +196,10 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="relative max-w-5xl mx-auto px-6 opacity-0 animate-hero-dashboard" style={{ animationDelay: "0.9s" }}>
-          <MockDashboard />
+          <div className="relative">
+            <div className="scan-line" />
+            <MockDashboard />
+          </div>
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ds-bg to-transparent" />
         </div>
       </section>
@@ -269,8 +285,9 @@ export default function LandingPage() {
 
       {/* Testimonial */}
       <section className="bg-ds-surface py-20 relative overflow-hidden">
-        <div className="orb orb-blue" style={{ width: 200, height: 200, top: -40, right: "10%" }} />
-        <div className="orb orb-purple" style={{ width: 180, height: 180, bottom: -30, left: "15%" }} />
+        <div className="orb orb-1" style={{ width: 350, height: 350, top: -80, right: "5%" }} />
+        <div className="orb orb-4" style={{ width: 300, height: 300, bottom: -60, left: "10%" }} />
+        <div className="orb orb-2" style={{ width: 200, height: 200, top: "40%", left: "50%" }} />
         <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <blockquote className="text-2xl sm:text-3xl font-bold text-ds-heading leading-snug mb-8">
             &ldquo;What used to take me 30 minutes of manual research now takes under 2 minutes. The pain points alone are worth it.&rdquo;
