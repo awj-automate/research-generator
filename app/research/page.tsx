@@ -4,7 +4,6 @@ import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 
 interface ProgressItem {
-  pipeline: string;
   layer: number;
   label: string;
   status: string;
@@ -23,18 +22,9 @@ interface PainPointsData {
   raw: string;
 }
 
-interface CostBreakdown {
-  firecrawlCost: number;
-  researchCost: number;
-  synthesisCost: number;
-  totalCost: number;
-  totalWithoutFirecrawl?: number;
-}
-
 interface FinalResult {
+  cost: number;
   duration: number;
-  perplexity: CostBreakdown;
-  claude: CostBreakdown;
 }
 
 const ALL_SECTIONS = [
@@ -50,6 +40,29 @@ const ALL_SECTIONS = [
 
 const LAYER_NAMES = ["Site Crawl", "Research", "Pain Points"];
 
+/** Strip markdown artifacts so content renders as clean plain text */
+function cleanContent(raw: string): string {
+  return raw
+    // Remove bold/italic markers
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+    // Remove markdown links [text](url) -> text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove heading markers
+    .replace(/^#{1,4}\s+/gm, "")
+    // Remove horizontal rules
+    .replace(/^[-*_]{3,}\s*$/gm, "")
+    // Convert markdown bullet lines to clean lines
+    .replace(/^[\s]*[-*+]\s+/gm, "")
+    // Remove pipe-based table formatting
+    .replace(/^\|.*\|$/gm, "")
+    .replace(/^[-|: ]+$/gm, "")
+    // Remove inline code backticks
+    .replace(/`([^`]+)`/g, "$1")
+    // Collapse multiple blank lines
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export default function AppPage() {
   const [companyName, setCompanyName] = useState("");
   const [domain, setDomain] = useState("");
@@ -61,10 +74,8 @@ export default function AppPage() {
 
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<ProgressItem[]>([]);
-  const [pxSections, setPxSections] = useState<SectionData[]>([]);
-  const [clSections, setClSections] = useState<SectionData[]>([]);
-  const [pxPainPoints, setPxPainPoints] = useState<PainPointsData | null>(null);
-  const [clPainPoints, setClPainPoints] = useState<PainPointsData | null>(null);
+  const [sections, setSections] = useState<SectionData[]>([]);
+  const [painPoints, setPainPoints] = useState<PainPointsData | null>(null);
   const [result, setResult] = useState<FinalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,10 +90,8 @@ export default function AppPage() {
 
     setRunning(true);
     setProgress([]);
-    setPxSections([]);
-    setClSections([]);
-    setPxPainPoints(null);
-    setClPainPoints(null);
+    setSections([]);
+    setPainPoints(null);
     setResult(null);
     setError(null);
 
@@ -133,12 +142,10 @@ export default function AppPage() {
                   setProgress((prev) => [...prev, { ...data, ts: Date.now() }]);
                   break;
                 case "sections":
-                  if (data.pipeline === "perplexity") setPxSections(data.sections);
-                  else if (data.pipeline === "claude") setClSections(data.sections);
+                  setSections(data);
                   break;
                 case "painpoints":
-                  if (data.pipeline === "perplexity") setPxPainPoints(data.painpoints);
-                  else if (data.pipeline === "claude") setClPainPoints(data.painpoints);
+                  setPainPoints(data);
                   break;
                 case "result":
                   setResult(data);
@@ -161,26 +168,38 @@ export default function AppPage() {
     setRunning(false);
   }, [companyName, domain, urls, context, enabledSections]);
 
+  /** Render cleaned content as paragraphs */
+  function renderContent(raw: string) {
+    const cleaned = cleanContent(raw);
+    return cleaned
+      .split(/\n\n+/)
+      .filter(Boolean)
+      .map((p, i) => (
+        <p key={i} dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }} />
+      ));
+  }
+
   function buildDocHtml(name: string, sectionData: SectionData[], pp: PainPointsData | null): string {
     let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head><meta charset="utf-8"><title>${name} - Sales Research Brief</title>
-<style>body{font-family:Arial,sans-serif;margin:40px;color:#222}h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}h2{font-size:18px;margin-top:28px;color:#444}p,li{font-size:13px;line-height:1.6}ul{margin:8px 0;padding-left:20px}</style></head><body>`;
+<style>body{font-family:Arial,sans-serif;margin:40px;color:#222}h1{font-size:24px;border-bottom:2px solid #333;padding-bottom:8px}h2{font-size:18px;margin-top:28px;color:#444}p,li{font-size:13px;line-height:1.6}ol{margin:8px 0;padding-left:20px}</style></head><body>`;
     html += `<h1>${name} - Sales Research Brief</h1>`;
 
     for (const section of sectionData) {
       html += `<h2>${section.title}</h2>`;
-      const paragraphs = section.content.split(/\n\n+/).filter(Boolean);
+      const cleaned = cleanContent(section.content);
+      const paragraphs = cleaned.split(/\n\n+/).filter(Boolean);
       for (const p of paragraphs) {
         html += `<p>${p.replace(/\n/g, "<br>")}</p>`;
       }
     }
 
     if (pp && pp.points.length > 0) {
-      html += `<h2>Likely Pain Points</h2><ul>`;
+      html += `<h2>Likely Pain Points</h2><ol>`;
       for (const point of pp.points) {
-        html += `<li>${point}</li>`;
+        html += `<li>${cleanContent(point)}</li>`;
       }
-      html += `</ul>`;
+      html += `</ol>`;
     }
 
     html += `</body></html>`;
@@ -214,226 +233,17 @@ export default function AppPage() {
 
   const reset = () => {
     setResult(null);
-    setPxSections([]);
-    setClSections([]);
-    setPxPainPoints(null);
-    setClPainPoints(null);
+    setSections([]);
+    setPainPoints(null);
     setProgress([]);
     setError(null);
   };
-
-  function fmt$(n: number): string {
-    return "$" + n.toFixed(4);
-  }
-
-  // ── Progress helpers ───────────────────────────────────────────────
-  function renderProgressColumn(pipeline: string, label: string) {
-    const pipelineProgress = progress.filter(
-      (p) => p.pipeline === pipeline || p.pipeline === "shared"
-    );
-    return (
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-bold text-ink-700 uppercase tracking-wider mb-3">{label}</h3>
-        <div className="space-y-2">
-          {LAYER_NAMES.map((name, i) => {
-            const layerItems = pipelineProgress.filter((p) => p.layer === i);
-            const started = layerItems.length > 0;
-            const done = layerItems.some(
-              (p) => p.status === "done" && !layerItems.some((q) => q.status === "start" && q.ts > p.ts)
-            );
-            const latest = layerItems[layerItems.length - 1];
-
-            return (
-              <div
-                key={i}
-                className={`p-3.5 rounded-xl border transition-all duration-300 ${
-                  done
-                    ? "bg-white border-surface-200 shadow-sm"
-                    : started
-                    ? "bg-brand-50 border-brand-200 shadow-md shadow-brand-500/5 animate-pulse-glow"
-                    : "bg-surface-100 border-surface-200 opacity-40"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                        done
-                          ? "bg-brand-100 text-brand-600"
-                          : started
-                          ? "bg-brand-500 text-white"
-                          : "bg-surface-200 text-ink-400"
-                      }`}
-                    >
-                      {String(i).padStart(2, "0")}
-                    </div>
-                    <span className="text-sm font-semibold text-ink-900">{name}</span>
-                  </div>
-                  {done && (
-                    <span className="text-xs text-brand-600 font-semibold animate-scale-in">
-                      Done
-                    </span>
-                  )}
-                  {started && !done && (
-                    <svg
-                      className="animate-spin h-4 w-4 text-brand-500"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                  )}
-                </div>
-                {latest && (
-                  <p className="text-xs text-ink-400 mt-1.5 ml-9 truncate">{latest.label}</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Results column renderer ────────────────────────────────────────
-  function renderResultColumn(
-    pipeline: string,
-    label: string,
-    sectionData: SectionData[],
-    painPoints: PainPointsData | null,
-    costs: CostBreakdown | null
-  ) {
-    return (
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-4">
-          <span
-            className={`inline-block w-3 h-3 rounded-full ${
-              pipeline === "perplexity" ? "bg-blue-500" : "bg-brand-500"
-            }`}
-          />
-          <h2 className="font-display text-xl text-ink-900">{label}</h2>
-        </div>
-
-        {/* Cost table */}
-        {costs && (
-          <div className="luminous-frame bg-white p-4 mb-4">
-            <h4 className="text-xs font-bold text-ink-700 uppercase tracking-wider mb-2">
-              Cost Breakdown
-            </h4>
-            <table className="w-full text-sm">
-              <tbody>
-                <tr className="border-b border-surface-100">
-                  <td className="py-1.5 text-ink-600">Firecrawl</td>
-                  <td className="py-1.5 text-ink-900 text-right font-mono">
-                    {fmt$(costs.firecrawlCost)}
-                  </td>
-                </tr>
-                <tr className="border-b border-surface-100">
-                  <td className="py-1.5 text-ink-600">
-                    Research ({pipeline === "perplexity" ? "Perplexity" : "Claude"})
-                  </td>
-                  <td className="py-1.5 text-ink-900 text-right font-mono">
-                    {fmt$(costs.researchCost)}
-                  </td>
-                </tr>
-                <tr className="border-b border-surface-100">
-                  <td className="py-1.5 text-ink-600">Synthesis (Claude)</td>
-                  <td className="py-1.5 text-ink-900 text-right font-mono">
-                    {fmt$(costs.synthesisCost)}
-                  </td>
-                </tr>
-                <tr className="font-semibold">
-                  <td className="py-1.5 text-ink-900">Total</td>
-                  <td className="py-1.5 text-ink-900 text-right font-mono">
-                    {fmt$(costs.totalCost)}
-                  </td>
-                </tr>
-                {costs.totalWithoutFirecrawl !== undefined && (
-                  <tr className="text-brand-600 font-semibold">
-                    <td className="py-1.5">Without Firecrawl</td>
-                    <td className="py-1.5 text-right font-mono">
-                      {fmt$(costs.totalWithoutFirecrawl)}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Export buttons */}
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => downloadDoc(companyName, sectionData, painPoints)}
-            className="flex-1 px-3 py-2.5 rounded-full bg-brand-500 text-white font-semibold hover:bg-brand-400 transition-all text-xs shadow-md shadow-brand-500/20 active:scale-[0.99]"
-          >
-            Download .doc
-          </button>
-          <button
-            onClick={() => openInGoogleDocs(companyName, sectionData, painPoints)}
-            className="flex-1 px-3 py-2.5 rounded-full bg-white border border-surface-200 text-ink-900 font-semibold hover:bg-surface-50 transition-all text-xs shadow-sm active:scale-[0.99]"
-          >
-            Google Docs
-          </button>
-        </div>
-
-        {/* Research Sections */}
-        <div className="space-y-3">
-          {sectionData.map((section) => (
-            <div key={section.id} className="luminous-frame bg-white p-5">
-              <h3 className="font-display text-lg text-ink-900 mb-2">{section.title}</h3>
-              <div className="text-sm text-ink-700 leading-relaxed space-y-2">
-                {section.content
-                  .split(/\n\n+/)
-                  .filter(Boolean)
-                  .map((p, i) => (
-                    <p
-                      key={i}
-                      dangerouslySetInnerHTML={{ __html: p.replace(/\n/g, "<br>") }}
-                    />
-                  ))}
-              </div>
-            </div>
-          ))}
-
-          {/* Pain Points */}
-          {painPoints && painPoints.points.length > 0 && (
-            <div className="luminous-frame bg-brand-50 p-5 border-brand-200">
-              <h3 className="font-display text-lg text-ink-900 mb-3">Likely Pain Points</h3>
-              <ul className="space-y-2">
-                {painPoints.points.map((point, i) => (
-                  <li key={i} className="flex gap-2.5 text-sm text-ink-700 leading-relaxed">
-                    <span className="w-5 h-5 rounded-md bg-brand-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-surface-50">
       {/* Nav */}
       <nav className="bg-brand-500 sticky top-0 z-50 shadow-md shadow-brand-700/15">
-        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between animate-fade-in">
+        <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between animate-fade-in">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="3"/>
@@ -444,7 +254,7 @@ export default function AppPage() {
         </div>
       </nav>
 
-      <div className={`mx-auto px-6 py-10 pb-20 ${result ? "max-w-7xl" : "max-w-3xl"}`}>
+      <div className="max-w-3xl mx-auto px-6 py-10 pb-20">
         {/* Input Form */}
         {!running && !result && (
           <div className="animate-slide-md">
@@ -535,7 +345,7 @@ export default function AppPage() {
           </div>
         )}
 
-        {/* Progress - side by side */}
+        {/* Progress */}
         {running && (
           <div className="animate-fade-in">
             <h1 className="font-display text-3xl text-ink-900 mb-1">
@@ -543,9 +353,51 @@ export default function AppPage() {
             </h1>
             <p className="text-sm text-ink-600 mb-8">{domain}</p>
 
-            <div className="flex gap-6">
-              {renderProgressColumn("perplexity", "Perplexity + Claude")}
-              {renderProgressColumn("claude", "Claude Only")}
+            <div className="space-y-3 stagger-children">
+              {LAYER_NAMES.map((name, i) => {
+                const layerItems = progress.filter((p) => p.layer === i);
+                const started = layerItems.length > 0;
+                const done = layerItems.some((p) => p.status === "done" && !layerItems.some((q) => q.status === "start" && q.ts > p.ts));
+                const latest = layerItems[layerItems.length - 1];
+
+                return (
+                  <div
+                    key={i}
+                    className={`p-5 rounded-xl border transition-all duration-300 ${
+                      done
+                        ? "bg-white border-surface-200 shadow-sm"
+                        : started
+                        ? "bg-brand-50 border-brand-200 shadow-md shadow-brand-500/5 animate-pulse-glow"
+                        : "bg-surface-100 border-surface-200 opacity-40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                          done ? "bg-brand-100 text-brand-600" : started ? "bg-brand-500 text-white" : "bg-surface-200 text-ink-400"
+                        }`}>
+                          {String(i).padStart(2, "0")}
+                        </div>
+                        <span className="text-sm font-semibold text-ink-900">{name}</span>
+                      </div>
+                      {done && (
+                        <span className="text-xs text-brand-600 font-semibold animate-scale-in">Complete</span>
+                      )}
+                      {started && !done && (
+                        <svg className="animate-spin h-4 w-4 text-brand-500" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      )}
+                    </div>
+                    {latest && (
+                      <p className="text-xs text-ink-400 mt-2 ml-11 truncate">
+                        {latest.label}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -557,42 +409,76 @@ export default function AppPage() {
           </div>
         )}
 
-        {/* Results - side by side */}
+        {/* Results */}
         {result && (
           <div className="animate-slide-md">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               <div>
                 <h1 className="font-display text-3xl text-ink-900">{companyName}</h1>
                 <p className="text-sm text-ink-600">{domain}</p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-lg font-bold text-ink-900">{result.duration}s</div>
-                  <div className="text-xs text-ink-400 uppercase font-semibold">Duration</div>
-                </div>
-                <button
-                  onClick={reset}
-                  className="text-sm text-ink-400 hover:text-ink-700 transition-colors px-4 py-2 rounded-full border border-surface-200 hover:bg-white hover:shadow-sm"
-                >
-                  New research
-                </button>
+              <button
+                onClick={reset}
+                className="text-sm text-ink-400 hover:text-ink-700 transition-colors px-4 py-2 rounded-full border border-surface-200 hover:bg-white hover:shadow-sm"
+              >
+                New research
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="p-4 rounded-xl bg-white border border-surface-200 shadow-sm text-center">
+                <div className="text-2xl font-bold text-ink-900">{result.duration}s</div>
+                <div className="text-xs text-ink-400 uppercase font-semibold mt-1">Duration</div>
+              </div>
+              <div className="p-4 rounded-xl bg-white border border-surface-200 shadow-sm text-center">
+                <div className="text-2xl font-bold text-ink-900">${result.cost}</div>
+                <div className="text-xs text-ink-400 uppercase font-semibold mt-1">API Cost</div>
               </div>
             </div>
 
-            <div className="flex gap-6">
-              {renderResultColumn(
-                "perplexity",
-                "Perplexity + Claude (current)",
-                pxSections,
-                pxPainPoints,
-                result.perplexity
-              )}
-              {renderResultColumn(
-                "claude",
-                "Claude Only (proposed)",
-                clSections,
-                clPainPoints,
-                result.claude
+            {/* Actions */}
+            <div className="flex gap-3 mb-10">
+              <button
+                onClick={() => downloadDoc(companyName, sections, painPoints)}
+                className="flex-1 px-4 py-3.5 rounded-full bg-brand-500 text-white font-semibold hover:bg-brand-400 transition-all text-sm shadow-lg shadow-brand-500/20 hover:shadow-xl active:scale-[0.99]"
+              >
+                Download .doc
+              </button>
+              <button
+                onClick={() => openInGoogleDocs(companyName, sections, painPoints)}
+                className="flex-1 px-4 py-3.5 rounded-full bg-white border border-surface-200 text-ink-900 font-semibold hover:bg-surface-50 transition-all text-sm shadow-sm hover:shadow-md active:scale-[0.99]"
+              >
+                Open in Google Docs
+              </button>
+            </div>
+
+            {/* Research Sections */}
+            <div className="space-y-4 stagger-children">
+              {sections.map((section) => (
+                <div key={section.id} className="luminous-frame bg-white p-6">
+                  <h3 className="font-display text-xl text-ink-900 mb-3">{section.title}</h3>
+                  <div className="text-sm text-ink-700 leading-relaxed space-y-2">
+                    {renderContent(section.content)}
+                  </div>
+                </div>
+              ))}
+
+              {/* Pain Points */}
+              {painPoints && painPoints.points.length > 0 && (
+                <div className="luminous-frame bg-brand-50 p-6 border-brand-200">
+                  <h3 className="font-display text-xl text-ink-900 mb-4">Likely Pain Points</h3>
+                  <ul className="space-y-3">
+                    {painPoints.points.map((point, i) => (
+                      <li key={i} className="flex gap-3 text-sm text-ink-700 leading-relaxed">
+                        <span className="w-6 h-6 rounded-lg bg-brand-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        {cleanContent(point)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>

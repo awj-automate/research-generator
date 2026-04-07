@@ -2,14 +2,9 @@ import { NextRequest } from "next/server";
 import { crawlSite } from "@/lib/pipeline/crawl";
 import { buildSectionQueries, buildPainPointsPrompt } from "@/lib/pipeline/prompts";
 import { runResearchQueries } from "@/lib/pipeline/research";
-import { runResearchQueriesClaude } from "@/lib/pipeline/research-claude";
 import { runSynthesis } from "@/lib/pipeline/synthesis";
 
 export const maxDuration = 300;
-
-function hasContent(results: Record<string, string>): boolean {
-  return Object.values(results).some((v) => v.trim().length > 0);
-}
 
 export async function POST(req: NextRequest) {
   const { companyName, domain, urls, context, sections } = await req.json();
@@ -46,123 +41,62 @@ export async function POST(req: NextRequest) {
       };
 
       const startTime = Date.now();
+      let totalCost = 0;
 
       try {
-        // ── Layer 0: Shared Site Crawl ──────────────────────────────
-        send("progress", { pipeline: "shared", layer: 0, label: "Crawling site...", status: "start" });
+        // Layer 0: Site Crawl
+        send("progress", { layer: 0, label: "Crawling site...", status: "start" });
         const extraUrls = (urls || "").split(/[\s,]+/).filter(Boolean);
         const siteContent = await crawlSite(domain, extraUrls, fcKey, (detail) => {
-          send("progress", { pipeline: "shared", layer: 0, label: detail, status: "done" });
+          send("progress", { layer: 0, label: detail, status: "done" });
         });
         const pageCount = Object.keys(siteContent).length;
-        const firecrawlCost = pageCount * 0.002;
-        send("progress", { pipeline: "shared", layer: 0, label: `Crawled ${pageCount} pages`, status: "done" });
+        totalCost += pageCount * 0.002;
+        send("progress", { layer: 0, label: `Crawled ${pageCount} pages`, status: "done" });
 
+        // Layer 1: Research Queries
         const researchSections = enabledSections.filter((s) => s !== "painpoints");
+        send("progress", { layer: 1, label: `Running ${researchSections.length} research queries...`, status: "start" });
         const queries = buildSectionQueries(
           { name: companyName, domain, userContext: context || "" },
           siteContent,
           researchSections
         );
-
-        // ── Layer 1: Research (both pipelines in parallel) ──────────
-        send("progress", { pipeline: "perplexity", layer: 1, label: `Running ${researchSections.length} research queries...`, status: "start" });
-        send("progress", { pipeline: "claude", layer: 1, label: `Running ${researchSections.length} research queries...`, status: "start" });
-
-        const [pxResearch, clResearch] = await Promise.all([
-          runResearchQueries(queries, pxKey, (id, title) => {
-            send("progress", { pipeline: "perplexity", layer: 1, label: title, status: "done", detail: id });
-          }),
-          runResearchQueriesClaude(queries, anKey, (id, title) => {
-            send("progress", { pipeline: "claude", layer: 1, label: title, status: "done", detail: id });
-          }),
-        ]);
-
-        send("progress", { pipeline: "perplexity", layer: 1, label: "Research complete", status: "done" });
-        send("progress", { pipeline: "claude", layer: 1, label: "Research complete", status: "done" });
-
-        // Send sections for both
-        const pxSectionData = queries.map((q) => ({
-          id: q.id, title: q.title, content: pxResearch.results[q.id] || "",
-        }));
-        const clSectionData = queries.map((q) => ({
-          id: q.id, title: q.title, content: clResearch.results[q.id] || "",
-        }));
-        send("sections", { pipeline: "perplexity", sections: pxSectionData });
-        send("sections", { pipeline: "claude", sections: clSectionData });
-
-        // ── Layer 2: Pain Points Synthesis (each isolated) ──────────
-        let pxPainPoints = null;
-        let clPainPoints = null;
-        let pxSynthCost = 0;
-        let clSynthCost = 0;
-
-        if (enabledSections.includes("painpoints")) {
-          send("progress", { pipeline: "perplexity", layer: 2, label: "Synthesizing pain points...", status: "start" });
-          send("progress", { pipeline: "claude", layer: 2, label: "Synthesizing pain points...", status: "start" });
-
-          // Run synthesis independently so one failing doesn't kill the other
-          const pxSynthPromise = (async () => {
-            if (!hasContent(pxResearch.results)) return null;
-            try {
-              const prompt = buildPainPointsPrompt(companyName, pxResearch.results, context || "");
-              return await runSynthesis(prompt, anKey);
-            } catch (err) {
-              console.error("Perplexity synthesis failed:", err);
-              return null;
-            }
-          })();
-
-          const clSynthPromise = (async () => {
-            if (!hasContent(clResearch.results)) return null;
-            try {
-              const prompt = buildPainPointsPrompt(companyName, clResearch.results, context || "");
-              return await runSynthesis(prompt, anKey);
-            } catch (err) {
-              console.error("Claude synthesis failed:", err);
-              return null;
-            }
-          })();
-
-          const [pxSynth, clSynth] = await Promise.all([pxSynthPromise, clSynthPromise]);
-
-          if (pxSynth) {
-            pxPainPoints = pxSynth.result;
-            pxSynthCost = pxSynth.cost;
-            send("progress", { pipeline: "perplexity", layer: 2, label: `Found ${pxPainPoints.points.length} pain points`, status: "done" });
-            send("painpoints", { pipeline: "perplexity", painpoints: pxPainPoints });
-          } else {
-            send("progress", { pipeline: "perplexity", layer: 2, label: "No research data for synthesis", status: "done" });
+        const { results: sectionResults, cost: researchCost } = await runResearchQueries(
+          queries,
+          pxKey,
+          (id, title) => {
+            send("progress", { layer: 1, label: title, status: "done", detail: id });
           }
+        );
+        totalCost += researchCost;
+        send("progress", { layer: 1, label: "Research complete", status: "done" });
 
-          if (clSynth) {
-            clPainPoints = clSynth.result;
-            clSynthCost = clSynth.cost;
-            send("progress", { pipeline: "claude", layer: 2, label: `Found ${clPainPoints.points.length} pain points`, status: "done" });
-            send("painpoints", { pipeline: "claude", painpoints: clPainPoints });
-          } else {
-            send("progress", { pipeline: "claude", layer: 2, label: "No research data for synthesis", status: "done" });
-          }
+        // Build sections array
+        const sectionData = queries.map((q) => ({
+          id: q.id,
+          title: q.title,
+          content: sectionResults[q.id] || "",
+        }));
+        send("sections", sectionData);
+
+        // Layer 2: Pain Points Synthesis (if enabled)
+        let painPoints = null;
+        if (enabledSections.includes("painpoints") && Object.values(sectionResults).some((v) => v.trim().length > 0)) {
+          send("progress", { layer: 2, label: "Synthesizing pain points...", status: "start" });
+          const prompt = buildPainPointsPrompt(companyName, sectionResults, context || "");
+          const { result, cost: synthCost } = await runSynthesis(prompt, anKey);
+          painPoints = result;
+          totalCost += synthCost;
+          send("progress", { layer: 2, label: `Found ${result.points.length} pain points`, status: "done" });
+          send("painpoints", painPoints);
         }
 
-        // ── Final result with cost breakdown (always sent) ──────────
+        // Final result
         const duration = (Date.now() - startTime) / 1000;
-
         send("result", {
+          cost: Math.round(totalCost * 10000) / 10000,
           duration: Math.round(duration),
-          perplexity: {
-            firecrawlCost,
-            researchCost: pxResearch.cost,
-            synthesisCost: pxSynthCost,
-            totalCost: Math.round((firecrawlCost + pxResearch.cost + pxSynthCost) * 10000) / 10000,
-          },
-          claude: {
-            firecrawlCost,
-            researchCost: clResearch.cost,
-            synthesisCost: clSynthCost,
-            totalCost: Math.round((firecrawlCost + clResearch.cost + clSynthCost) * 10000) / 10000,
-            totalWithoutFirecrawl: Math.round((clResearch.cost + clSynthCost) * 10000) / 10000,
-          },
         });
       } catch (err) {
         send("error", { message: err instanceof Error ? err.message : "Pipeline failed" });
