@@ -45,6 +45,8 @@ function cleanContent(raw: string): string {
   return raw
     .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove Perplexity citation markers like [1], [2, 3], [1][2]
+    .replace(/\[[\d,\s]+\]/g, "")
     .replace(/^#{1,4}\s+/gm, "")
     .replace(/^[-*_]{3,}\s*$/gm, "")
     .replace(/^[\s]*[-*+]\s+/gm, "")
