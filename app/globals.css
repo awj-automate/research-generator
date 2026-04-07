@@ -3,19 +3,24 @@
 @tailwind utilities;
 
 body {
-  background-color: #F8FAFC;
-  color: #1E293B;
+  background-color: #E4E4E7;
+  color: #3F3F46;
 }
+
+::selection { background: rgba(77,139,254,0.2); color: #09090B; }
 
 ::-webkit-scrollbar {
   width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #E4E4E7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #A1A1AA;
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4D8BFE;
 }
 
 /* Slide-in animations */
@@ -45,8 +50,13 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 157, 111, 0.3); }
-  50% { box-shadow: 0 0 20px 4px rgba(45, 157, 111, 0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(77, 139, 254, 0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(77, 139, 254, 0.15); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .animate-slide-sm {
@@ -93,13 +103,13 @@ body {
   width: 36px;
   height: 20px;
   border-radius: 10px;
-  background: #CBD5E1;
+  background: #A1A1AA;
   cursor: pointer;
   transition: background 0.2s ease;
   flex-shrink: 0;
 }
 .toggle-switch.active {
-  background: #2D9D6F;
+  background: #4D8BFE;
 }
 .toggle-switch::after {
   content: "";
@@ -117,29 +127,15 @@ body {
   transform: translateX(16px);
 }
 
-/* Glass card */
-.glass-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.5);
-  box-shadow: 10px 50px 100px rgba(0,0,0,0.08);
-}
-
-/* CTA button shimmer */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
+/* CTA button */
 .btn-cta {
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(.15, 0, .35, 1);
-  box-shadow: 0 4px 15px rgba(45, 157, 111, 0.3), 0 1px 3px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(77, 139, 254, 0.3), 0 1px 3px rgba(0,0,0,0.08);
 }
 .btn-cta:hover {
-  box-shadow: 0 8px 30px rgba(45, 157, 111, 0.4), 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 30px rgba(77, 139, 254, 0.4), 0 2px 6px rgba(0,0,0,0.1);
   transform: translateY(-1px);
 }
 .btn-cta:active {
@@ -161,7 +157,8 @@ body {
 /* Luminous frame */
 .luminous-frame {
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 0 10px 0 rgba(0,0,0,0.08), 0 2px 8px 0 rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
 }
