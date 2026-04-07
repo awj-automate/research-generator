@@ -1,18 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Merriweather, Playfair_Display } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const merriweather = Merriweather({
-  subsets: ["latin"],
-  variable: "--font-merriweather",
-  weight: ["400", "700"],
-});
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["700", "800", "900"],
-});
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" });
 
 export const metadata: Metadata = {
   title: "LeadLens",
@@ -24,8 +14,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${merriweather.variable} ${playfair.variable}`}>
-      <body className="font-body antialiased">
+    <html lang="en" className={manrope.variable}>
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>

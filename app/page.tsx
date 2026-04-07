@@ -130,7 +130,7 @@ function MockToggleList() {
 export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-hidden bg-surface-50">
-      {/* Nav - green accent background */}
+      {/* Nav */}
       <nav className="bg-brand-500 sticky top-0 z-50 shadow-md shadow-brand-700/15">
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <span className="flex items-center gap-2.5">
@@ -138,7 +138,7 @@ export default function LandingPage() {
               <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="3"/>
               <line x1="20" y1="20" x2="28" y2="28" stroke="white" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            <span className="font-logo text-[22px] text-white tracking-tight italic">LeadLens</span>
+            <span className="text-[22px] text-white tracking-tight font-bold">LeadLens</span>
           </span>
           <Link
             href="/research"
@@ -149,14 +149,14 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero - accent green bg, text + product image below */}
+      {/* Hero */}
       <section className="bg-brand-50 pt-20 pb-0 overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 text-center mb-16">
           <div className="animate-slide-xl">
             <div className="inline-block mb-5 px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-600 text-sm font-semibold">
               Sales research, automated
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] tracking-tight text-ink-900 mb-5">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-ink-900 mb-5">
               Know any company<br />
               <span className="text-brand-500">before you reach out</span>
             </h1>
@@ -180,19 +180,19 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        {/* Product screenshot - fades into next section */}
+        {/* Product screenshot */}
         <div className="relative max-w-5xl mx-auto px-6 animate-slide-md" style={{ animationDelay: "0.2s" }}>
           <MockDashboard />
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-50 to-transparent" />
         </div>
       </section>
 
-      {/* How it works - steps */}
+      {/* How it works */}
       <section id="how" className="bg-surface-50 py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="text-xs font-semibold text-brand-500 uppercase tracking-widest mb-3">HOW IT WORKS</div>
-            <h2 className="font-display text-3xl sm:text-4xl text-ink-900 mb-3">Four steps. Under two minutes.</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-3">Four steps. Under two minutes.</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
             {STEPS.map((step) => (
@@ -203,7 +203,7 @@ export default function LandingPage() {
                 <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
                   <span className="text-sm font-bold text-brand-600">{step.num}</span>
                 </div>
-                <h3 className="font-display text-lg text-ink-900 mb-2">{step.title}</h3>
+                <h3 className="text-lg font-bold text-ink-900 mb-2">{step.title}</h3>
                 <p className="text-sm text-ink-600 leading-relaxed">{step.desc}</p>
               </div>
             ))}
@@ -211,13 +211,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature: Research sections - alternating image/text */}
+      {/* Feature: Research sections */}
       <section className="bg-white py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="order-2 lg:order-1 animate-slide-sm">
               <div className="text-xs font-semibold text-brand-500 uppercase tracking-widest mb-3">CUSTOMIZABLE</div>
-              <h2 className="font-display text-3xl text-ink-900 mb-4">What you get</h2>
+              <h2 className="text-3xl font-bold text-ink-900 mb-4">What you get</h2>
               <p className="text-base text-ink-600 leading-relaxed mb-8">
                 Eight research sections, fully customizable. Toggle on what matters for your outreach and skip the rest.
               </p>
@@ -237,7 +237,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature: Research output - flipped */}
+      {/* Feature: Research output */}
       <section className="bg-surface-50 py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -246,7 +246,7 @@ export default function LandingPage() {
             </div>
             <div className="animate-slide-sm">
               <div className="text-xs font-semibold text-brand-500 uppercase tracking-widest mb-3">AI-POWERED</div>
-              <h2 className="font-display text-3xl text-ink-900 mb-4">Deep research in seconds</h2>
+              <h2 className="text-3xl font-bold text-ink-900 mb-4">Deep research in seconds</h2>
               <p className="text-base text-ink-600 leading-relaxed mb-6">
                 Crawls the company site, runs parallel research queries across multiple sources,
                 and synthesizes actionable pain points for your outreach.
@@ -266,10 +266,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonial / quote */}
+      {/* Testimonial */}
       <section className="bg-brand-50 py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <blockquote className="font-display text-2xl sm:text-3xl text-ink-900 leading-snug mb-8">
+          <blockquote className="text-2xl sm:text-3xl font-bold text-ink-900 leading-snug mb-8">
             &ldquo;What used to take me 30 minutes of manual research now takes under 2 minutes. The pain points alone are worth it.&rdquo;
           </blockquote>
           <div className="flex items-center justify-center gap-3">
@@ -286,7 +286,7 @@ export default function LandingPage() {
       <section className="bg-white py-24">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <div className="text-xs font-semibold text-brand-500 uppercase tracking-widest mb-3">PRICING</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-ink-900 mb-4">Ready to research?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-ink-900 mb-4">Ready to research?</h2>
           <p className="text-base text-ink-600 mb-10">About $0.05 per report in API costs. No subscription required.</p>
           <Link
             href="/research"
@@ -305,7 +305,7 @@ export default function LandingPage() {
               <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="3"/>
               <line x1="20" y1="20" x2="28" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            <span className="font-logo text-base italic">LeadLens</span>
+            <span className="text-base font-bold">LeadLens</span>
           </span>
           <p className="text-xs text-white/20">Sales research, automated</p>
         </div>

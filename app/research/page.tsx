@@ -249,7 +249,7 @@ export default function AppPage() {
               <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="3"/>
               <line x1="20" y1="20" x2="28" y2="28" stroke="white" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            <span className="font-logo text-[22px] text-white tracking-tight italic">LeadLens</span>
+            <span className="text-[22px] text-white tracking-tight font-bold">LeadLens</span>
           </Link>
         </div>
       </nav>
@@ -258,7 +258,7 @@ export default function AppPage() {
         {/* Input Form */}
         {!running && !result && (
           <div className="animate-slide-md">
-            <h1 className="font-display text-3xl text-ink-900 mb-1">New Research</h1>
+            <h1 className="text-3xl font-bold text-ink-900 mb-1">New Research</h1>
             <p className="text-sm text-ink-600 mb-8">Enter a company to research</p>
 
             <div className="luminous-frame bg-white p-6 sm:p-8 mb-6">
@@ -348,7 +348,7 @@ export default function AppPage() {
         {/* Progress */}
         {running && (
           <div className="animate-fade-in">
-            <h1 className="font-display text-3xl text-ink-900 mb-1">
+            <h1 className="text-3xl font-bold text-ink-900 mb-1">
               Researching {companyName}
             </h1>
             <p className="text-sm text-ink-600 mb-8">{domain}</p>
@@ -414,7 +414,7 @@ export default function AppPage() {
           <div className="animate-slide-md">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h1 className="font-display text-3xl text-ink-900">{companyName}</h1>
+                <h1 className="text-3xl font-bold text-ink-900">{companyName}</h1>
                 <p className="text-sm text-ink-600">{domain}</p>
               </div>
               <button
@@ -457,7 +457,7 @@ export default function AppPage() {
             <div className="space-y-4 stagger-children">
               {sections.map((section) => (
                 <div key={section.id} className="luminous-frame bg-white p-6">
-                  <h3 className="font-display text-xl text-ink-900 mb-3">{section.title}</h3>
+                  <h3 className="text-xl font-bold text-ink-900 mb-3">{section.title}</h3>
                   <div className="text-sm text-ink-700 leading-relaxed space-y-2">
                     {renderContent(section.content)}
                   </div>
@@ -467,7 +467,7 @@ export default function AppPage() {
               {/* Pain Points */}
               {painPoints && painPoints.points.length > 0 && (
                 <div className="luminous-frame bg-brand-50 p-6 border-brand-200">
-                  <h3 className="font-display text-xl text-ink-900 mb-4">Likely Pain Points</h3>
+                  <h3 className="text-xl font-bold text-ink-900 mb-4">Likely Pain Points</h3>
                   <ul className="space-y-3">
                     {painPoints.points.map((point, i) => (
                       <li key={i} className="flex gap-3 text-sm text-ink-700 leading-relaxed">
