@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface ProgressItem {
@@ -27,6 +29,15 @@ interface FinalResult {
   duration: number;
 }
 
+interface ReportSummary {
+  id: string;
+  companyName: string;
+  domain: string;
+  cost: string | null;
+  duration: number | null;
+  createdAt: string;
+}
+
 const ALL_SECTIONS = [
   { id: "description", title: "Company Description" },
   { id: "financials", title: "Financials" },
@@ -40,12 +51,10 @@ const ALL_SECTIONS = [
 
 const LAYER_NAMES = ["Site Crawl", "Research", "Pain Points"];
 
-/** Strip markdown artifacts so content renders as clean plain text */
 function cleanContent(raw: string): string {
   return raw
     .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    // Remove Perplexity citation markers like [1], [2, 3], [1][2]
     .replace(/\[[\d,\s]+\]/g, "")
     .replace(/^#{1,4}\s+/gm, "")
     .replace(/^[-*_]{3,}\s*$/gm, "")
@@ -58,6 +67,9 @@ function cleanContent(raw: string): string {
 }
 
 export default function AppPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [companyName, setCompanyName] = useState("");
   const [domain, setDomain] = useState("");
   const [urls, setUrls] = useState("");
@@ -73,7 +85,32 @@ export default function AppPage() {
   const [result, setResult] = useState<FinalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Past reports
+  const [pastReports, setPastReports] = useState<ReportSummary[]>([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+  const [viewingReport, setViewingReport] = useState(false);
+
   const abortRef = useRef<AbortController | null>(null);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  // Load past reports
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/reports")
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setPastReports(data);
+        })
+        .catch(() => {})
+        .finally(() => setLoadingReports(false));
+    }
+  }, [status, result]);
 
   const toggleSection = (id: string) => {
     setEnabledSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -88,6 +125,7 @@ export default function AppPage() {
     setPainPoints(null);
     setResult(null);
     setError(null);
+    setViewingReport(false);
 
     abortRef.current = new AbortController();
 
@@ -162,6 +200,22 @@ export default function AppPage() {
     setRunning(false);
   }, [companyName, domain, urls, context, enabledSections]);
 
+  const loadReport = async (id: string) => {
+    try {
+      const res = await fetch(`/api/reports/${id}`);
+      if (!res.ok) return;
+      const report = await res.json();
+      setCompanyName(report.companyName);
+      setDomain(report.domain);
+      setSections(report.sections || []);
+      setPainPoints(report.painPoints || null);
+      setResult({ cost: Number(report.cost) || 0, duration: report.duration || 0 });
+      setViewingReport(true);
+      setProgress([]);
+      setError(null);
+    } catch {}
+  };
+
   function renderContent(raw: string) {
     const cleaned = cleanContent(raw);
     return cleaned
@@ -230,7 +284,18 @@ export default function AppPage() {
     setPainPoints(null);
     setProgress([]);
     setError(null);
+    setViewingReport(false);
   };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-ds-bg flex items-center justify-center">
+        <div className="text-ds-muted text-sm">Loading...</div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") return null;
 
   return (
     <div className="min-h-screen bg-ds-bg">
@@ -244,6 +309,15 @@ export default function AppPage() {
             </svg>
             <span className="text-[22px] text-white tracking-tight font-bold">LeadLens</span>
           </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-white/60">{session?.user?.email}</span>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="text-sm text-white/40 hover:text-white transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -335,6 +409,32 @@ export default function AppPage() {
             >
               Research Company
             </button>
+
+            {/* Past Reports */}
+            {!loadingReports && pastReports.length > 0 && (
+              <div className="mt-12">
+                <h2 className="text-lg font-bold text-ds-heading mb-4">Past Reports</h2>
+                <div className="space-y-2">
+                  {pastReports.map((report) => (
+                    <button
+                      key={report.id}
+                      onClick={() => loadReport(report.id)}
+                      className="w-full text-left luminous-frame bg-ds-card p-4 hover:bg-ds-surface transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-semibold text-ds-heading">{report.companyName}</span>
+                          <span className="text-xs text-ds-muted ml-2">{report.domain}</span>
+                        </div>
+                        <span className="text-xs text-ds-subtle">
+                          {new Date(report.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

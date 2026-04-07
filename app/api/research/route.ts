@@ -1,4 +1,7 @@
 import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { getDb } from "@/lib/db";
+import { researchReports, usageLog } from "@/lib/db/schema";
 import { crawlSite } from "@/lib/pipeline/crawl";
 import { buildSectionQueries, buildPainPointsPrompt } from "@/lib/pipeline/prompts";
 import { runResearchQueries } from "@/lib/pipeline/research";
@@ -7,6 +10,15 @@ import { runSynthesis } from "@/lib/pipeline/synthesis";
 export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const userId = session.user.id;
   const { companyName, domain, urls, context, sections } = await req.json();
 
   if (!companyName || !domain) {
@@ -94,10 +106,32 @@ export async function POST(req: NextRequest) {
 
         // Final result
         const duration = (Date.now() - startTime) / 1000;
-        send("result", {
-          cost: Math.round(totalCost * 10000) / 10000,
-          duration: Math.round(duration),
-        });
+        const finalCost = Math.round(totalCost * 10000) / 10000;
+        const finalDuration = Math.round(duration);
+
+        send("result", { cost: finalCost, duration: finalDuration });
+
+        // Save report to database
+        try {
+          await getDb().insert(researchReports).values({
+            userId,
+            companyName,
+            domain,
+            context: context || null,
+            sections: sectionData,
+            painPoints,
+            cost: String(finalCost),
+            duration: finalDuration,
+          });
+
+          await getDb().insert(usageLog).values({
+            userId,
+            action: "research_run",
+            metadata: { companyName, domain, cost: finalCost, duration: finalDuration },
+          });
+        } catch (dbErr) {
+          console.error("Failed to save report to DB:", dbErr);
+        }
       } catch (err) {
         send("error", { message: err instanceof Error ? err.message : "Pipeline failed" });
       }
